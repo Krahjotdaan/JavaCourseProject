@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "course-project"
-version = "0.0.1-SNAPSHOT"
+version = "BOOKING_APP"
 
 java {
 	toolchain {
