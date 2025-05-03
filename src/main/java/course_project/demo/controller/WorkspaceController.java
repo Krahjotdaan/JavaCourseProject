@@ -18,7 +18,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
 @RestController
-@Tag(name = "Workspaace", description = "Workspace API")
+@Tag(name = "Workspace", description = "Workspace API")
 @RequestMapping("/workspaces")
 public class WorkspaceController {
     
