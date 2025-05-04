@@ -62,9 +62,9 @@ public class WorkspaceControllerTest {
 
     @Test
     void addWorkspace_validInput_returnsOkResponse() {
-        when(workspaceService.addWorkspace(workspaceId, workspace)).thenReturn(workspace);
+        when(workspaceService.addWorkspace(workspace)).thenReturn(workspace);
 
-        ResponseEntity<TemplatesAPI<Workspace>> response = workspaceController.addWorkspace(workspaceId, workspace);
+        ResponseEntity<TemplatesAPI<Workspace>> response = workspaceController.addWorkspace(workspace);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
