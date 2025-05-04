@@ -3,8 +3,6 @@ package course_project.demo;
 import course_project.demo.controller.BookingController;
 import course_project.demo.model.Booking;
 import course_project.demo.model.TemplatesAPI;
-import course_project.demo.model.User;
-import course_project.demo.model.Workspace;
 import course_project.demo.service.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,15 +26,13 @@ public class BookingControllerTest {
     private BookingController bookingController;
 
     private Booking booking;
-    private Workspace workspace;
-    private User user;
+    private String workspace;
+    private Integer user;
 
     @BeforeEach
     void setUp() {
         booking = new Booking();
         booking.setId(1);
-        workspace = new Workspace();
-        user = new User();
     }
 
     @Test
@@ -65,9 +61,9 @@ public class BookingControllerTest {
 
     @Test
     void addBooking_validInput_returnsOkResponse() {
-        when(bookingService.addBooking(workspace, booking, user)).thenReturn(booking);
+        when(bookingService.addBooking(workspace, user, booking)).thenReturn(booking);
 
-        ResponseEntity<TemplatesAPI<Booking>> response = bookingController.addBooking(workspace, booking, user);
+        ResponseEntity<TemplatesAPI<Booking>> response = bookingController.addBooking(workspace, user, booking);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());

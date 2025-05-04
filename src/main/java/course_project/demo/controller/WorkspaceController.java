@@ -44,9 +44,9 @@ public class WorkspaceController {
 
     @Operation(summary = "Добавление рабочего пространства")
     @PostMapping
-    public ResponseEntity<TemplatesAPI<Workspace>> addWorkspace(@PathVariable String id, @Valid @RequestBody Workspace workspace) {
+    public ResponseEntity<TemplatesAPI<Workspace>> addWorkspace(@Valid @RequestBody Workspace workspace) {
         
-        Workspace newWorkspace = workspaceService.addWorkspace(id, workspace);  
+        Workspace newWorkspace = workspaceService.addWorkspace(workspace);  
 
         return ResponseEntity.ok(new TemplatesAPI<>(200, "Рабочее пространство добавлено", newWorkspace));
     }
