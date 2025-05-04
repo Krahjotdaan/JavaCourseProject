@@ -43,9 +43,9 @@ public class BookingController {
 
     @Operation(summary = "Создание брони")
     @PostMapping
-    public ResponseEntity<TemplatesAPI<Booking>> addBooking(@Valid @RequestBody Workspace workspace, @Valid @RequestBody Booking booking, @Valid @RequestBody User user) {
+    public ResponseEntity<TemplatesAPI<Booking>> addBooking(@PathVariable String workspaceId, @PathVariable Integer userId, @Valid @RequestBody Booking booking) {
         
-        Booking newBooking = bookingService.addBooking(workspace, booking, user);  
+        Booking newBooking = bookingService.addBooking(workspaceId, userId, booking);  
 
         return ResponseEntity.ok(new TemplatesAPI<>(200, "Бронь создана", newBooking));
     }
