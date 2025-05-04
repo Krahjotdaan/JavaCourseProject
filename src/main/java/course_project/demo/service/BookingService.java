@@ -1,5 +1,6 @@
 package course_project.demo.service;
 
+import course_project.demo.dto.BookingDto;
 import course_project.demo.model.Booking;
 import course_project.demo.repository.*;
 import jakarta.persistence.EntityNotFoundException;
@@ -21,14 +22,15 @@ public class BookingService {
         this.userRepository = userRepository;
     }
 
-    public Booking addBooking(String workspaceId, Integer userId, Booking booking) {
-        booking.setUserId(userId);
-		booking.setWorkspaceId(workspaceId);
+    public Booking addBooking(BookingDto bookingDto) {
 
-        if (userRepository.existsById(userId)) {
-            if (workspaceRepository.existsById(workspaceId)) {
-                booking.setUserId(userId);
-		        booking.setWorkspaceId(workspaceId);
+        Booking booking = new Booking();
+
+        if (userRepository.existsById(bookingDto.getUserId())) {
+            if (workspaceRepository.existsById(bookingDto.getWorkspaceId())) {
+                booking.setUserId(bookingDto.getUserId());
+		        booking.setWorkspaceId(bookingDto.getWorkspaceId());
+                booking.setTime(bookingDto.getTime());
             }
             else {
                 throw new EntityNotFoundException("Рабочее пространство не найдено");

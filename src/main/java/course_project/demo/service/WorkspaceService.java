@@ -1,6 +1,8 @@
 package course_project.demo.service;
 
 import org.springframework.stereotype.Service;
+
+import course_project.demo.dto.WorkspaceDto;
 import course_project.demo.model.Workspace;
 import course_project.demo.repository.WorkspaceRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,8 +17,13 @@ public class WorkspaceService {
         this.workspaceRepository = workspaceRepository;
     }
 
-    public Workspace addWorkspace(Workspace workspace) {
-        return workspaceRepository.save(workspace);
+    public Workspace addWorkspace(WorkspaceDto workspaceDto) {
+        Workspace newWorkspace = new Workspace();
+
+        newWorkspace.setId(workspaceDto.getId());
+        newWorkspace.setType(workspaceDto.getType());
+
+        return workspaceRepository.save(newWorkspace);
     }
 
     public Workspace getWorkspace(String id) {

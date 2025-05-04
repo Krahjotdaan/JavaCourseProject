@@ -2,6 +2,7 @@ package course_project.demo.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import course_project.demo.dto.UserDto;
 import course_project.demo.model.TemplatesAPI;
 import course_project.demo.model.User;
 import course_project.demo.service.UserService;
@@ -29,6 +31,7 @@ public class UserController {
     }
 
     @Operation(summary = "Получение пользователя")
+    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<TemplatesAPI<User>> getUser(@PathVariable Integer id) {
         
@@ -43,15 +46,17 @@ public class UserController {
     }
 
     @Operation(summary = "Добавление пользователя")
+    @Transactional
     @PostMapping
-    public ResponseEntity<TemplatesAPI<User>> addUser(@Valid @RequestBody User user) {
-        
-        User newUser = userService.addUser(user);  
+    public ResponseEntity<TemplatesAPI<User>> addUser(@Valid @RequestBody UserDto userDto) {
+
+        User newUser = userService.addUser(userDto);
 
         return ResponseEntity.ok(new TemplatesAPI<>(200, "Пользователь добавлен", newUser));
     }
 
     @Operation(summary = "Удаление пользователя")
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<TemplatesAPI<String>> deleteUser(@PathVariable Integer id) {
 
