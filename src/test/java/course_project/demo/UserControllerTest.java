@@ -31,8 +31,7 @@ public class UserControllerTest {
     void setUp() {
         user = new User();
         user.setId(1);
-        user.setName("John");
-        user.setSurname("Doe");
+        user.setName("John Doe");
     }
 
     @Test
