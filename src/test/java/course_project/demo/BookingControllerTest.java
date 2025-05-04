@@ -1,6 +1,7 @@
 package course_project.demo;
 
 import course_project.demo.controller.BookingController;
+import course_project.demo.dto.BookingDto;
 import course_project.demo.model.Booking;
 import course_project.demo.model.TemplatesAPI;
 import course_project.demo.service.BookingService;
@@ -26,8 +27,7 @@ public class BookingControllerTest {
     private BookingController bookingController;
 
     private Booking booking;
-    private String workspace;
-    private Integer user;
+    private BookingDto bookingDto;
 
     @BeforeEach
     void setUp() {
@@ -61,9 +61,9 @@ public class BookingControllerTest {
 
     @Test
     void addBooking_validInput_returnsOkResponse() {
-        when(bookingService.addBooking(workspace, user, booking)).thenReturn(booking);
+        when(bookingService.addBooking(bookingDto)).thenReturn(booking);
 
-        ResponseEntity<TemplatesAPI<Booking>> response = bookingController.addBooking(workspace, user, booking);
+        ResponseEntity<TemplatesAPI<Booking>> response = bookingController.addBooking(bookingDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());

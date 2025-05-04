@@ -1,6 +1,7 @@
 package course_project.demo;
 
 import course_project.demo.controller.WorkspaceController;
+import course_project.demo.dto.WorkspaceDto;
 import course_project.demo.model.TemplatesAPI;
 import course_project.demo.model.Workspace;
 import course_project.demo.service.WorkspaceService;
@@ -27,6 +28,7 @@ public class WorkspaceControllerTest {
 
     private Workspace workspace;
     private String workspaceId;
+    private WorkspaceDto workspaceDto;
 
     @BeforeEach
     void setUp() {
@@ -62,9 +64,9 @@ public class WorkspaceControllerTest {
 
     @Test
     void addWorkspace_validInput_returnsOkResponse() {
-        when(workspaceService.addWorkspace(workspace)).thenReturn(workspace);
+        when(workspaceService.addWorkspace(workspaceDto)).thenReturn(workspace);
 
-        ResponseEntity<TemplatesAPI<Workspace>> response = workspaceController.addWorkspace(workspace);
+        ResponseEntity<TemplatesAPI<Workspace>> response = workspaceController.addWorkspace(workspaceDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());

@@ -1,5 +1,6 @@
 package course_project.demo.service;
 
+import course_project.demo.dto.UserDto;
 import course_project.demo.model.User;
 import course_project.demo.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -15,8 +16,14 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public User addUser(User user) {
-        return userRepository.save(user);
+    public User addUser(UserDto userDto) {
+        User newUser = new User();
+        
+        newUser.setName(userDto.getName());
+        newUser.setRole(userDto.getRole());
+        newUser.setEmail(userDto.getEmail());
+
+        return userRepository.save(newUser);
     }
 
     public User getUser(Integer id) {

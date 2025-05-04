@@ -1,6 +1,7 @@
 package course_project.demo;
 
 import course_project.demo.controller.UserController;
+import course_project.demo.dto.UserDto;
 import course_project.demo.model.TemplatesAPI;
 import course_project.demo.model.User;
 import course_project.demo.service.UserService;
@@ -26,6 +27,7 @@ public class UserControllerTest {
     private UserController userController;
 
     private User user;
+    private UserDto userDto;
 
     @BeforeEach
     void setUp() {
@@ -60,9 +62,9 @@ public class UserControllerTest {
 
     @Test
     void addUser_validInput_returnsOkResponse() {
-        when(userService.addUser(user)).thenReturn(user);
+        when(userService.addUser(userDto)).thenReturn(user);
 
-        ResponseEntity<TemplatesAPI<User>> response = userController.addUser(user);
+        ResponseEntity<TemplatesAPI<User>> response = userController.addUser(userDto);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
