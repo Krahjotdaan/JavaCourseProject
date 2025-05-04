@@ -1,18 +1,19 @@
 package course_project.demo.model;
 
-import java.util.ArrayList;
-import java.util.List;
+import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
 
+@Entity
+@Table(name = "workspaces")
 @Getter
 @Setter
 public class Workspace {
 
+    @Column(nullable = false, unique = true)
     private String id;
     
+    @Column(nullable = false)
     private String type;
-
-    private List<Integer> bookings = new ArrayList<>();
 }

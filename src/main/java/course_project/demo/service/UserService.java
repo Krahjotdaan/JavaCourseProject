@@ -1,31 +1,44 @@
 package course_project.demo.service;
 
 import course_project.demo.model.User;
-
-import java.util.HashMap;
-import java.util.Map;
+import course_project.demo.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
     
-    private final Map<Integer, User> users = new HashMap<>();
-    private Integer id = 1;
+    private final UserRepository userRepository;
+
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public User addUser(User user) {
-        user.setId(id);
-        id++;
-        users.put(user.getId(), user);
-
-        return user;
+        return userRepository.save(user);
     }
 
     public User getUser(Integer id) {
-        return users.get(id);
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+    }
+
+    public User updateUser(Integer id, User updatedUser) {
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+
+        user.setName(updatedUser.getName());
+        user.setRole(updatedUser.getRole());
+        user.setEmail(updatedUser.getEmail());
+
+        return userRepository.save(user);
     }
 
     public void deleteUser(Integer id) {
-        users.remove(id);
+        if (userRepository.existsById(id)) {
+            userRepository.deleteById(id);
+		}
+		else {
+			throw new EntityNotFoundException("Пользователь не найден");
+		}
     }
 }

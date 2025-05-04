@@ -1,34 +1,45 @@
 package course_project.demo.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import org.springframework.stereotype.Service;
-
 import course_project.demo.model.Workspace;
+import course_project.demo.repository.WorkspaceRepository;
+import jakarta.persistence.EntityNotFoundException;
+
 
 @Service
 public class WorkspaceService {
-    
-    private final Map<String, Workspace> workspaces = new HashMap<>();
 
-    public Workspace addWorkspace(String id, Workspace workspace) {
-        if (!workspaces.containsKey(id)) {
-            workspace.setId(id);
-            workspaces.put(workspace.getId(), workspace);
+    private final WorkspaceRepository workspaceRepository;
 
-            return workspace;
-        }
-        else {
-            return workspaces.get(id);
-        }
+    public WorkspaceService(WorkspaceRepository workspaceRepository) {
+        this.workspaceRepository = workspaceRepository;
+    }
+
+    public Workspace addWorkspace(Workspace workspace) {
+        return workspaceRepository.save(workspace);
     }
 
     public Workspace getWorkspace(String id) {
-        return workspaces.get(id);
+        return workspaceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Рабочее пространство не найдено"));
+    }
+	
+	public Iterable<Workspace> getAllWorkspaces() {
+		return workspaceRepository.findAll();
+	}
+
+    public Workspace updateWorkspace(String id, Workspace updatedWorkspace) {
+        Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Рабочее пространство не найдено"));
+		workspace.setType(updatedWorkspace.getType());
+
+        return workspaceRepository.save(workspace);
     }
 
     public void deleteWorkspace(String id) {
-        workspaces.remove(id);
+		if (workspaceRepository.existsById(id)) {
+            workspaceRepository.deleteById(id);
+		}
+		else {
+			throw new EntityNotFoundException("Рабочее пространство не найдено");
+		}
     }
 }
