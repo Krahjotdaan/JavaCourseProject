@@ -27,11 +27,11 @@ public class UserService {
     }
 
     public User getUser(Integer id) {
-        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+        return userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
     }
 
     public User updateUser(Integer id, User updatedUser) {
-        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Пользователь не найден"));
+        User user = getUser(id);
 
         user.setName(updatedUser.getName());
         user.setRole(updatedUser.getRole());
@@ -45,7 +45,7 @@ public class UserService {
             userRepository.deleteById(id);
 		}
 		else {
-			throw new EntityNotFoundException("Пользователь не найден");
+			throw new EntityNotFoundException("User not found");
 		}
     }
 }

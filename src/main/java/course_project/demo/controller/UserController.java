@@ -18,6 +18,8 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RestController
 @Tag(name = "User", description = "User API")
@@ -25,6 +27,7 @@ import jakarta.validation.Valid;
 public class UserController {
     
     private final UserService userService;
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -49,6 +52,8 @@ public class UserController {
     @Transactional
     @PostMapping
     public ResponseEntity<TemplatesAPI<User>> addUser(@Valid @RequestBody UserDto userDto) {
+
+        logger.info("Received UserDto: {}", userDto);
 
         User newUser = userService.addUser(userDto);
 
