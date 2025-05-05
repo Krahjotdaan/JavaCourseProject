@@ -1,34 +1,54 @@
 package course_project.demo.service;
 
-import java.util.HashMap;
-import java.util.Map;
-
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import course_project.demo.model.Workspace;
+import course_project.demo.repository.WorkspaceRepository;
+import jakarta.persistence.EntityNotFoundException;
+
 
 @Service
 public class WorkspaceService {
-    
-    private final Map<String, Workspace> workspaces = new HashMap<>();
 
-    public Workspace addWorkspace(String id, Workspace workspace) {
-        if (!workspaces.containsKey(id)) {
-            workspace.setId(id);
-            workspaces.put(workspace.getId(), workspace);
+    private final WorkspaceRepository workspaceRepository;
 
-            return workspace;
+    public WorkspaceService(WorkspaceRepository workspaceRepository) {
+        this.workspaceRepository = workspaceRepository;
+    }
+
+    public Workspace addWorkspace(Workspace workspace) {
+
+        if (!workspaceRepository.existsById(workspace.getId())) {
+            return workspaceRepository.save(workspace);
         }
         else {
-            return workspaces.get(id);
+            throw new DuplicateKeyException("Workspace with this id already exists");
         }
+        
     }
 
     public Workspace getWorkspace(String id) {
-        return workspaces.get(id);
+        return workspaceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Workspace not found"));
+    }
+	
+	public Iterable<Workspace> getAllWorkspaces() {
+		return workspaceRepository.findAll();
+	}
+
+    public Workspace updateWorkspace(String id, Workspace updatedWorkspace) {
+        Workspace workspace = getWorkspace(id);
+		workspace.setType(updatedWorkspace.getType());
+
+        return workspaceRepository.save(workspace);
     }
 
     public void deleteWorkspace(String id) {
-        workspaces.remove(id);
+		if (workspaceRepository.existsById(id)) {
+            workspaceRepository.deleteById(id);
+		}
+		else {
+			throw new EntityNotFoundException("Workspace not found");
+		}
     }
 }
