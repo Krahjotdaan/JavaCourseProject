@@ -2,19 +2,21 @@ package course_project.demo.controller;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import course_project.demo.model.*;
 import course_project.demo.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 
 @RestController
 @Tag(name = "Booking", description = "Booking API")
@@ -28,6 +30,7 @@ public class BookingController {
     }
 
     @Operation(summary = "Получение брони")
+    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<TemplatesAPI<Booking>> getBooking(@PathVariable Integer id) {
         
@@ -42,15 +45,17 @@ public class BookingController {
     }
 
     @Operation(summary = "Создание брони")
+    @Transactional
     @PostMapping
-    public ResponseEntity<TemplatesAPI<Booking>> addBooking(@Valid @RequestBody Workspace workspace, @Valid @RequestBody Booking booking, @Valid @RequestBody User user) {
+    public ResponseEntity<TemplatesAPI<Booking>> addBooking(@Valid @RequestBody Booking booking) {
         
-        Booking newBooking = bookingService.addBooking(workspace, booking, user);  
+        Booking newBooking = bookingService.addBooking(booking);  
 
         return ResponseEntity.ok(new TemplatesAPI<>(200, "Бронь создана", newBooking));
     }
 
     @Operation(summary = "Удаление брони")
+    @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<TemplatesAPI<String>> deleteBooking(@PathVariable Integer id) {
 
