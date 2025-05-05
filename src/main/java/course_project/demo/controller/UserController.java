@@ -1,5 +1,6 @@
 package course_project.demo.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -7,17 +8,17 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import course_project.demo.dto.UserDto;
 import course_project.demo.model.TemplatesAPI;
 import course_project.demo.model.User;
 import course_project.demo.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,6 +30,7 @@ public class UserController {
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
+    @Autowired
     public UserController(UserService userService) {
         this.userService = userService;
     }
@@ -51,11 +53,11 @@ public class UserController {
     @Operation(summary = "Добавление пользователя")
     @Transactional
     @PostMapping
-    public ResponseEntity<TemplatesAPI<User>> addUser(@Valid @RequestBody UserDto userDto) {
+    public ResponseEntity<TemplatesAPI<User>> addUser(@Valid @RequestBody User user) {
 
-        logger.info("Received UserDto: {}", userDto);
+        logger.info("Received UserDto: {}", user);
 
-        User newUser = userService.addUser(userDto);
+        User newUser = userService.addUser(user);
 
         return ResponseEntity.ok(new TemplatesAPI<>(200, "Пользователь добавлен", newUser));
     }

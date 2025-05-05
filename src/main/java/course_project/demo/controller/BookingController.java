@@ -7,14 +7,13 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import course_project.demo.dto.BookingDto;
 import course_project.demo.model.*;
 import course_project.demo.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 
@@ -48,9 +47,9 @@ public class BookingController {
     @Operation(summary = "Создание брони")
     @Transactional
     @PostMapping
-    public ResponseEntity<TemplatesAPI<Booking>> addBooking(@Valid @RequestBody BookingDto bookingDto) {
+    public ResponseEntity<TemplatesAPI<Booking>> addBooking(@Valid @RequestBody Booking booking) {
         
-        Booking newBooking = bookingService.addBooking(bookingDto);  
+        Booking newBooking = bookingService.addBooking(booking);  
 
         return ResponseEntity.ok(new TemplatesAPI<>(200, "Бронь создана", newBooking));
     }

@@ -3,7 +3,6 @@ package course_project.demo.service;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
-import course_project.demo.dto.WorkspaceDto;
 import course_project.demo.model.Workspace;
 import course_project.demo.repository.WorkspaceRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -18,15 +17,10 @@ public class WorkspaceService {
         this.workspaceRepository = workspaceRepository;
     }
 
-    public Workspace addWorkspace(WorkspaceDto workspaceDto) {
+    public Workspace addWorkspace(Workspace workspace) {
 
-        if (workspaceRepository.existsById(workspaceDto.getId())) {
-            Workspace newWorkspace = new Workspace();
-
-            newWorkspace.setId(workspaceDto.getId());
-            newWorkspace.setType(workspaceDto.getType());
-
-            return workspaceRepository.save(newWorkspace);
+        if (!workspaceRepository.existsById(workspace.getId())) {
+            return workspaceRepository.save(workspace);
         }
         else {
             throw new DuplicateKeyException("Workspace with this id already exists");
