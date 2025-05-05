@@ -28,28 +28,29 @@ public class BookingService {
 
         if (userRepository.existsById(bookingDto.getUserId())) {
             if (workspaceRepository.existsById(bookingDto.getWorkspaceId())) {
+
                 booking.setUserId(bookingDto.getUserId());
 		        booking.setWorkspaceId(bookingDto.getWorkspaceId());
                 booking.setTime(bookingDto.getTime());
             }
             else {
-                throw new EntityNotFoundException("Рабочее пространство не найдено");
+                throw new EntityNotFoundException("Workspace not found");
             }
         }
         else {
-            throw new EntityNotFoundException("Пользователь не найден");
+            throw new EntityNotFoundException("User not found");
         }
 
         return bookingRepository.save(booking);
     }
 
     public Booking getBooking(Integer id) {
-        return bookingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Бронь не найдена"));
+        return bookingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
     }
 
     public List<Booking> getBookingsByUserId(Integer userId) {
 		if (!userRepository.existsById(userId)) {
-            throw new EntityNotFoundException("Пользователь не найден");
+            throw new EntityNotFoundException("User not found");
         }
         
         return bookingRepository.findByUserId(userId);
@@ -60,7 +61,7 @@ public class BookingService {
             bookingRepository.deleteById(id);
 		}
 		else {
-			throw new EntityNotFoundException("Бронь не найдена");
+			throw new EntityNotFoundException("Booking not found");
 		}
     }
 }
