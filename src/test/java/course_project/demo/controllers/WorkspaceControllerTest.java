@@ -1,28 +1,28 @@
 package course_project.demo.controllers;
 
 import course_project.demo.controller.WorkspaceController;
+import course_project.demo.exception.WorkspaceNotFoundException;
 import course_project.demo.model.TemplatesAPI;
 import course_project.demo.model.Workspace;
 import course_project.demo.service.WorkspaceService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
+@WebMvcTest(WorkspaceController.class)
 public class WorkspaceControllerTest {
 
-    @Mock
+    @MockBean
     private WorkspaceService workspaceService;
 
-    @InjectMocks
+    @Autowired
     private WorkspaceController workspaceController;
 
     private Workspace workspace;
@@ -44,19 +44,20 @@ public class WorkspaceControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
-        assertEquals("Рабочее пространство найдено", response.getBody().getMessage());
+        assertEquals("Workspace found", response.getBody().getMessage());
         assertEquals(workspace, response.getBody().getData());
     }
 
     @Test
     void getWorkspace_nonExistingId_returnsNotFoundResponse() {
-        when(workspaceService.getWorkspace(workspaceId)).thenReturn(null);
+        String errorMessage = "Workspace not found with id: " + workspaceId;
+        when(workspaceService.getWorkspace(workspaceId)).thenThrow(new WorkspaceNotFoundException(workspaceId));
 
         ResponseEntity<TemplatesAPI<Workspace>> response = workspaceController.getUser(workspaceId);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(404, response.getBody().getStatus());
-        assertEquals("Рабочее пространство не найдено", response.getBody().getMessage());
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getBody().getStatus());
+        assertEquals(errorMessage, response.getBody().getMessage());
         assertNull(response.getBody().getData());
     }
 
@@ -68,20 +69,19 @@ public class WorkspaceControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
-        assertEquals("Рабочее пространство добавлено", response.getBody().getMessage());
+        assertEquals("Workspace added", response.getBody().getMessage());
         assertEquals(workspace, response.getBody().getData());
     }
 
     @Test
     void deleteWorkspace_existingId_returnsOkResponse() {
-        when(workspaceService.getWorkspace(workspaceId)).thenReturn(workspace);
-        doNothing().when(workspaceService).deleteWorkspace(workspaceId);
+         when(workspaceService.getWorkspace(workspaceId)).thenReturn(workspace);
 
         ResponseEntity<TemplatesAPI<String>> response = workspaceController.deleteUser(workspaceId);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
-        assertEquals("Рабочее пространство удалено", response.getBody().getMessage());
+        assertEquals("Workspace deleted", response.getBody().getMessage());
         assertEquals("OK", response.getBody().getData());
 
         verify(workspaceService, times(1)).deleteWorkspace(workspaceId);
@@ -89,13 +89,14 @@ public class WorkspaceControllerTest {
 
     @Test
     void deleteWorkspace_nonExistingId_returnsNotFoundResponse() {
-        when(workspaceService.getWorkspace(workspaceId)).thenReturn(null);
+        String errorMessage = "Workspace not found with id: " + workspaceId;
+        when(workspaceService.getWorkspace(workspaceId)).thenThrow(new WorkspaceNotFoundException(workspaceId));
 
         ResponseEntity<TemplatesAPI<String>> response = workspaceController.deleteUser(workspaceId);
 
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(404, response.getBody().getStatus());
-        assertEquals("Рабочее пространство не найдено", response.getBody().getMessage());
+        assertEquals(HttpStatus.NOT_FOUND.value(), response.getBody().getStatus());
+        assertEquals(errorMessage, response.getBody().getMessage());
         assertNull(response.getBody().getData());
 
         verify(workspaceService, never()).deleteWorkspace(workspaceId);
