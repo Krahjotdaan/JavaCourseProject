@@ -24,7 +24,7 @@ public class UserService {
     }
 
     public User updateUser(Integer id, User updatedUser) {
-        User user = getUser(id);
+        User user = userRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("User not found"));
 
         user.setName(updatedUser.getName());
         user.setRole(updatedUser.getRole());

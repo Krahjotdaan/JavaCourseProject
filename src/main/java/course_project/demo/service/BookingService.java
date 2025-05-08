@@ -25,7 +25,6 @@ public class BookingService {
 
         if (userRepository.existsById(booking.getUserId())) {
             if (workspaceRepository.existsById(booking.getWorkspaceId())) {
-
                 return bookingRepository.save(booking);
             }
             else {

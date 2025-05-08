@@ -1,5 +1,6 @@
 package course_project.demo.service;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
@@ -18,14 +19,11 @@ public class WorkspaceService {
     }
 
     public Workspace addWorkspace(Workspace workspace) {
-
-        if (!workspaceRepository.existsById(workspace.getId())) {
+        try {
             return workspaceRepository.save(workspace);
-        }
-        else {
+        } catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("Workspace with this id already exists");
-        }
-        
+        }  
     }
 
     public Workspace getWorkspace(String id) {
@@ -37,7 +35,7 @@ public class WorkspaceService {
 	}
 
     public Workspace updateWorkspace(String id, Workspace updatedWorkspace) {
-        Workspace workspace = getWorkspace(id);
+        Workspace workspace = workspaceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Workspace not found"));
 		workspace.setType(updatedWorkspace.getType());
 
         return workspaceRepository.save(workspace);
