@@ -30,7 +30,7 @@ public class WorkspaceController {
     @Operation(summary = "Получение информации о рабочем пространстве")
     @Transactional
     @GetMapping("/{id}")
-    public ResponseEntity<TemplatesAPI<Workspace>> getUser(@PathVariable String id) {
+    public ResponseEntity<TemplatesAPI<Workspace>> getWorkspace(@PathVariable String id) {
         try {
             Workspace workspace = workspaceService.getWorkspace(id);
             return ResponseEntity.ok(new TemplatesAPI<>(200, "Workspace found", workspace));
@@ -56,7 +56,7 @@ public class WorkspaceController {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(new TemplatesAPI<>(409, "Workspace already exists with id: " + id, null));
         } 
         catch (Exception e) {
-            logger.error("An unexpected error occurred while adding workspace: {}", workspace, e);
+            logger.error("An unexpected error occurred while adding workspace: {}", e.getMessage(), e);
             throw e; 
         }
     }
@@ -64,7 +64,7 @@ public class WorkspaceController {
     @Operation(summary = "Удаление рабочего пространства")
     @Transactional
     @DeleteMapping("/{id}")
-    public ResponseEntity<TemplatesAPI<String>> deleteUser(@PathVariable String id) {
+    public ResponseEntity<TemplatesAPI<String>> deleteWorkspace(@PathVariable String id) {
         try {
             workspaceService.deleteWorkspace(id);
             return ResponseEntity.ok(new TemplatesAPI<>(200, "Workspace deleted", "OK"));

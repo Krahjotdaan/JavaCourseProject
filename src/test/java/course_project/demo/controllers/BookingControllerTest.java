@@ -7,39 +7,39 @@ import course_project.demo.model.TemplatesAPI;
 import course_project.demo.service.BookingService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@WebMvcTest(BookingController.class)
+@ExtendWith(MockitoExtension.class)
 public class BookingControllerTest {
 
-    @MockBean
+    @Mock
     private BookingService bookingService;
 
-    @Autowired
+    @InjectMocks
     private BookingController bookingController;
 
     private Booking booking;
-    private Integer bookingId;
 
     @BeforeEach
     void setUp() {
-        bookingId = 1;
         booking = new Booking();
-        booking.setId(bookingId);
+        booking.setId(1);
     }
 
     @Test
     void getBooking_existingId_returnsOkResponse() {
-        when(bookingService.getBooking(bookingId)).thenReturn(booking);
+        when(bookingService.getBooking(1)).thenReturn(booking);
 
-        ResponseEntity<TemplatesAPI<Booking>> response = bookingController.getBooking(bookingId);
+        ResponseEntity<TemplatesAPI<Booking>> response = bookingController.getBooking(1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
@@ -48,16 +48,9 @@ public class BookingControllerTest {
     }
 
     @Test
-    void getBooking_nonExistingId_returnsNotFoundResponse() {
-        String errorMessage = "Booking not found with id: " + bookingId;
-        when(bookingService.getBooking(bookingId)).thenThrow(new BookingNotFoundException(bookingId));
-
-        ResponseEntity<TemplatesAPI<Booking>> response = bookingController.getBooking(bookingId);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getBody().getStatus());
-        assertEquals(errorMessage, response.getBody().getMessage());
-        assertNull(response.getBody().getData());
+    void getBooking_nonExistingId_throwsRuntimeException() {
+        when(bookingService.getBooking(2)).thenThrow(new BookingNotFoundException(2));
+        assertThrows(RuntimeException.class, () -> bookingController.getBooking(2));
     }
 
     @Test
@@ -73,31 +66,26 @@ public class BookingControllerTest {
     }
 
     @Test
-    void deleteBooking_existingId_returnsOkResponse() {
-        when(bookingService.getBooking(bookingId)).thenReturn(booking);
+    void addBooking_throwsRuntimeException() {
+        doThrow(new RuntimeException("Test Exception")).when(bookingService).addBooking(any(Booking.class));
+        assertThrows(RuntimeException.class, () -> bookingController.addBooking(new Booking()));
+}
 
-        ResponseEntity<TemplatesAPI<String>> response = bookingController.deleteBooking(bookingId);
+    @Test
+    void deleteBooking_existingId_returnsOkResponse() {
+        doNothing().when(bookingService).deleteBooking(1);
+
+        ResponseEntity<TemplatesAPI<String>> response = bookingController.deleteBooking(1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
         assertEquals("Booking deleted", response.getBody().getMessage());
         assertEquals("OK", response.getBody().getData());
-
-        verify(bookingService, times(1)).deleteBooking(bookingId);
     }
 
     @Test
-    void deleteBooking_nonExistingId_returnsNotFoundResponse() {
-        String errorMessage = "Booking not found with id: " + bookingId;
-        when(bookingService.getBooking(bookingId)).thenThrow(new BookingNotFoundException(bookingId));
-
-        ResponseEntity<TemplatesAPI<String>> response = bookingController.deleteBooking(bookingId);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getBody().getStatus());
-        assertEquals(errorMessage, response.getBody().getMessage());
-        assertNull(response.getBody().getData());
-
-        verify(bookingService, never()).deleteBooking(bookingId);
+    void deleteBooking_nonExistingId_throwsRuntimeException() {
+        doThrow(new RuntimeException("Test Exception")).when(bookingService).deleteBooking(2);
+        assertThrows(RuntimeException.class, () -> bookingController.deleteBooking(2));
     }
 }

@@ -48,7 +48,7 @@ public class BookingController {
             return ResponseEntity.ok(new TemplatesAPI<>(200, "Booking created", newBooking));
         }  
         catch (Exception e) {
-            logger.warn("Failed to add booking: {}", e.getMessage(), e);
+            logger.warn("An unexpected error occurred while adding booking: {}", e.getMessage(), e);
             throw e;
         }
     }
