@@ -1,29 +1,25 @@
 package course_project.demo.controller;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import course_project.demo.model.*;
 import course_project.demo.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @RestController
 @Tag(name = "Booking", description = "Booking API")
 @RequestMapping("/bookings")
 public class BookingController {
-    
+
     private final BookingService bookingService;
+    private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
     public BookingController(BookingService bookingService) {
         this.bookingService = bookingService;
@@ -33,14 +29,13 @@ public class BookingController {
     @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<TemplatesAPI<Booking>> getBooking(@PathVariable Integer id) {
-        
-        Booking booking = bookingService.getBooking(id);
-
-        if (booking != null) {
-            return ResponseEntity.ok(new TemplatesAPI<>(200, "Бронь найдена", booking));
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new TemplatesAPI<>(404, "Бронь не найдена", null));
+        try {
+            Booking booking = bookingService.getBooking(id);
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "Booking found", booking));
+        } 
+        catch (Exception e) {
+            logger.error("An unexpected error occurred while getting booking with id: {}", id, e);
+            throw e; 
         }
     }
 
@@ -48,24 +43,27 @@ public class BookingController {
     @Transactional
     @PostMapping
     public ResponseEntity<TemplatesAPI<Booking>> addBooking(@Valid @RequestBody Booking booking) {
-        
-        Booking newBooking = bookingService.addBooking(booking);  
-
-        return ResponseEntity.ok(new TemplatesAPI<>(200, "Бронь создана", newBooking));
+        try {
+            Booking newBooking = bookingService.addBooking(booking);
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "Booking created", newBooking));
+        }  
+        catch (Exception e) {
+            logger.warn("Failed to add booking: {}", e.getMessage(), e);
+            throw e;
+        }
     }
 
     @Operation(summary = "Удаление брони")
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<TemplatesAPI<String>> deleteBooking(@PathVariable Integer id) {
-
-        if (bookingService.getBooking(id) != null) {
+        try {
             bookingService.deleteBooking(id);
-
-            return ResponseEntity.ok(new TemplatesAPI<>(200, "Бронь удалена", "OK"));
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new TemplatesAPI<>(404, "Бронь не найдена", null));
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "Booking deleted", "OK"));
+        } 
+        catch (Exception e) {
+            logger.error("An unexpected error occurred while deleting booking with id: {}", id, e);
+            throw e; 
         }
     }
 }

@@ -4,13 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import course_project.demo.model.TemplatesAPI;
 import course_project.demo.model.User;
@@ -26,7 +20,7 @@ import org.slf4j.LoggerFactory;
 @Tag(name = "User", description = "User API")
 @RequestMapping("/users")
 public class UserController {
-    
+
     private final UserService userService;
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
@@ -39,14 +33,13 @@ public class UserController {
     @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<TemplatesAPI<User>> getUser(@PathVariable Integer id) {
-        
-        User user = userService.getUser(id);
-
-        if (user != null) {
-            return ResponseEntity.ok(new TemplatesAPI<>(200, "Пользователь найден", user));
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new TemplatesAPI<>(404, "Пользователь не найден", null));
+        try {
+            User user = userService.getUser(id);
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "User found", user));
+        } 
+        catch (Exception e) {
+            logger.error("An unexpected error occurred while getting user with id: {}", id, e);
+            throw e; 
         }
     }
 
@@ -54,26 +47,28 @@ public class UserController {
     @Transactional
     @PostMapping
     public ResponseEntity<TemplatesAPI<User>> addUser(@Valid @RequestBody User user) {
-
-        logger.info("Received UserDto: {}", user);
-
-        User newUser = userService.addUser(user);
-
-        return ResponseEntity.ok(new TemplatesAPI<>(200, "Пользователь добавлен", newUser));
+        try {
+            logger.info("Received User: {}", user);
+            User newUser = userService.addUser(user);
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "User added", newUser));
+        } 
+        catch (Exception e) {
+            logger.error("An unexpected error occurred while adding user: {}", user, e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new TemplatesAPI<>(500, "Internal server error", null));
+        }
     }
 
     @Operation(summary = "Удаление пользователя")
     @Transactional
     @DeleteMapping("/{id}")
     public ResponseEntity<TemplatesAPI<String>> deleteUser(@PathVariable Integer id) {
-
-        if (userService.getUser(id) != null) {
+        try {
             userService.deleteUser(id);
-
-            return ResponseEntity.ok(new TemplatesAPI<>(200, "Пользователь удален", "OK"));
-        }
-        else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new TemplatesAPI<>(404, "Пользователь не найден", null));
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "User deleted", "OK"));
+        } 
+        catch (Exception e) {
+            logger.error("An unexpected error occurred while deleting user with id: {}", id, e);
+            throw e; 
         }
     }
 }
