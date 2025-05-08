@@ -1,7 +1,6 @@
 package course_project.demo.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
@@ -48,13 +47,12 @@ public class UserController {
     @PostMapping
     public ResponseEntity<TemplatesAPI<User>> addUser(@Valid @RequestBody User user) {
         try {
-            logger.info("Received User: {}", user);
             User newUser = userService.addUser(user);
             return ResponseEntity.ok(new TemplatesAPI<>(200, "User added", newUser));
         } 
         catch (Exception e) {
-            logger.error("An unexpected error occurred while adding user: {}", user, e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new TemplatesAPI<>(500, "Internal server error", null));
+            logger.error("An unexpected error occurred while adding user: {}", e.getMessage(), e);
+            throw e; 
         }
     }
 

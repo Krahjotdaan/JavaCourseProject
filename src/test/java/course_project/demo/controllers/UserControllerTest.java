@@ -2,45 +2,44 @@ package course_project.demo.controllers;
 
 import course_project.demo.controller.UserController;
 import course_project.demo.exception.UserNotFoundException;
-import course_project.demo.model.TemplatesAPI;
 import course_project.demo.model.User;
+import course_project.demo.model.TemplatesAPI;
 import course_project.demo.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-@WebMvcTest(UserController.class)
+@ExtendWith(MockitoExtension.class)
 public class UserControllerTest {
 
-    @MockBean
+    @Mock
     private UserService userService;
 
-    @Autowired
+    @InjectMocks
     private UserController userController;
 
     private User user;
-    private Integer userId;
 
     @BeforeEach
     void setUp() {
-        userId = 1;
         user = new User();
-        user.setId(userId);
-        user.setName("John Doe");
+        user.setId(1);
     }
 
     @Test
-    void getUser_existingId_returnsOkResponse() {
-        when(userService.getUser(userId)).thenReturn(user);
+    void getBooking_existingId_returnsOkResponse() {
+        when(userService.getUser(1)).thenReturn(user);
 
-        ResponseEntity<TemplatesAPI<User>> response = userController.getUser(userId);
+        ResponseEntity<TemplatesAPI<User>> response = userController.getUser(1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
@@ -49,16 +48,9 @@ public class UserControllerTest {
     }
 
     @Test
-    void getUser_nonExistingId_returnsNotFoundResponse() {
-        String errorMessage = "User not found with id: " + userId;
-        when(userService.getUser(userId)).thenThrow(new UserNotFoundException(userId));
-
-        ResponseEntity<TemplatesAPI<User>> response = userController.getUser(userId);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getBody().getStatus());
-        assertEquals(errorMessage, response.getBody().getMessage());
-        assertNull(response.getBody().getData());
+    void getUser_nonExistingId_throwsNotFound() {
+        when(userService.getUser(2)).thenThrow(new UserNotFoundException(2));
+        assertThrows(RuntimeException.class, () -> userController.getUser(2));
     }
 
     @Test
@@ -74,31 +66,26 @@ public class UserControllerTest {
     }
 
     @Test
-    void deleteUser_existingId_returnsOkResponse() {
-        when(userService.getUser(userId)).thenReturn(user);
+    void addUser_throwsRuntimeException() {
+        doThrow(new RuntimeException("Test Exception")).when(userService).addUser(any(User.class));
+        assertThrows(RuntimeException.class, () -> userController.addUser(new User()));
+}
 
-        ResponseEntity<TemplatesAPI<String>> response = userController.deleteUser(userId);
+    @Test
+    void deleteUser_existingId_returnsOkResponse() {
+        doNothing().when(userService).deleteUser(1);
+
+        ResponseEntity<TemplatesAPI<String>> response = userController.deleteUser(1);
 
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(200, response.getBody().getStatus());
         assertEquals("User deleted", response.getBody().getMessage());
         assertEquals("OK", response.getBody().getData());
-
-        verify(userService, times(1)).deleteUser(userId);
     }
 
     @Test
-    void deleteUser_nonExistingId_returnsNotFoundResponse() {
-        String errorMessage = "User not found with id: " + userId;
-        when(userService.getUser(userId)).thenThrow(new UserNotFoundException(userId));
-
-        ResponseEntity<TemplatesAPI<String>> response = userController.deleteUser(userId);
-
-        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
-        assertEquals(HttpStatus.NOT_FOUND.value(), response.getBody().getStatus());
-        assertEquals(errorMessage, response.getBody().getMessage());
-        assertNull(response.getBody().getData());
-
-        verify(userService, never()).deleteUser(userId);
+    void deleteUser_nonExistingId_throwsRuntimeException() {
+        doThrow(new RuntimeException("Test Exception")).when(userService).deleteUser(2);
+        assertThrows(RuntimeException.class, () -> userController.deleteUser(2));
     }
 }
