@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import BookingForm from './components/BookingForm';
 import BookingList from './components/BookingList';
 import styled, { ThemeProvider } from 'styled-components';
-import { darkTheme, lightTheme, GlobalStyles } from './themes';
+import { lightTheme, GlobalStyles } from './themes';
 
 const AppContainer = styled.div`
   display: flex;
@@ -41,10 +41,6 @@ const BookingFormContainer = styled.div`
 
 const App = () => {
     const [theme, setTheme] = useState('light');
-
-    const toggleTheme = () => {
-        setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
-    };
 
     useEffect(() => {
         const storedTheme = localStorage.getItem('theme');
