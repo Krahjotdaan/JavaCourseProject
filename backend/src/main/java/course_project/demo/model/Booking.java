@@ -9,7 +9,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.time.LocalDateTime;
 
@@ -22,24 +22,28 @@ import java.time.LocalDateTime;
 public class Booking {
 
     @Id
-    @JsonIgnore
+    @JsonView(Views.Internal.class)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false)
+    @JsonView(Views.Public.class)
     @NotNull(message = "User email cannot be null")
     private String userEmail;
 
     @Column(nullable = false)
+    @JsonView(Views.Public.class)
     @NotBlank(message = "Workspace ID cannot be blank")
     private String workspaceId;
 
     @Column(nullable = false)
+    @JsonView(Views.Public.class)
     @NotNull(message = "Start time cannot be null")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime startTime;
 
     @Column(nullable = false)
+    @JsonView(Views.Public.class)
     @NotNull(message = "End time cannot be null")
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) 
     private LocalDateTime endTime;

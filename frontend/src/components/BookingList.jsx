@@ -15,6 +15,25 @@ const BookingItem = styled.li`
   background-color: ${({ theme }) => theme.occupiedIntervalBackground};
   color: ${({ theme }) => theme.text};
   margin-bottom: 5px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+`;
+
+const BookingInfo = styled.span`
+`;
+
+const DeleteButton = styled.button`
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f44336; /* Красный цвет для кнопки удаления */
+  color: white;
+  cursor: pointer;
+
+  &:hover {
+    background-color: #d32f2f; /* Более темный красный при наведении */
+  }
 `;
 
 const SearchContainer = styled.div`
@@ -28,7 +47,7 @@ const SearchInput = styled.input`
   border: 1px solid ${({ theme }) => theme.borderColor};
   border-radius: 4px;
   margin-right: 10px;
-  flex-grow: 1; 
+  flex-grow: 1;
   color: ${({ theme }) => theme.text};
   background-color: ${({ theme }) => theme.inputBackground};
 `;
@@ -56,6 +75,16 @@ const BookingList = () => {
         }
     };
 
+    const handleDelete = async (bookingId) => {
+        try {
+            await axios.delete(`/api/bookings/${bookingId}`);
+            handleSearch(); 
+        } 
+        catch (error) {
+            console.error('Error deleting booking:', error);
+        }
+    };
+
     return (
         <BookingListContainer>
             <h2>Ваши бронирования</h2>
@@ -72,7 +101,12 @@ const BookingList = () => {
                 {bookings.map((booking) => (
                     !isPast(new Date(booking.endTime)) && (
                         <BookingItem key={booking.id}>
-                            {booking.workspaceId} - {format(new Date(booking.startTime), 'dd.MM.yyyy HH:mm')} - {format(new Date(booking.endTime), 'HH:mm')}
+                            <BookingInfo>
+                                {booking.workspaceId} - {format(new Date(booking.startTime), 'dd.MM.yyyy HH:mm')} - {format(new Date(booking.endTime), 'HH:mm')}
+                            </BookingInfo>
+                            <DeleteButton onClick={() => handleDelete(booking.id)}>
+                                Удалить
+                            </DeleteButton>
                         </BookingItem>
                     )
                 ))}

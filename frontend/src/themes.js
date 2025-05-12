@@ -16,6 +16,21 @@ export const lightTheme = {
     occupiedIntervalBackground: '#f2f2f2'
 };
 
+export const darkTheme = {
+    body: '#121212',
+    text: '#FAFAFA', 
+    toggleButtonBackground: '#BB86FC',
+    buttonText: '#000',
+    borderColor: '#555', 
+    inputBackground: '#333', 
+    successText: '#81C784', 
+    successBackground: '#388E3C', 
+    errorText: '#E57373', 
+    errorBackground: '#D32F2F', 
+    availableSlotBackground: '#424242', 
+    occupiedSlotBackground: '#757575', 
+    occupiedIntervalBackground: '#616161'
+};
 
 export const GlobalStyles = createGlobalStyle`
   body {
