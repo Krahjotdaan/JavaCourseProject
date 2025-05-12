@@ -73,6 +73,28 @@ const BookingForm = () => {
     const [availableWorkspaces, setAvailableWorkspaces] = useState([]);
 
     useEffect(() => {
+        const fetchWorkspaces = async () => {
+            try {
+                const apiUrl = `/api/workspaces`;
+                const response = await axios.get(apiUrl);
+                if (Array.isArray(response.data.data)) {
+                    setAvailableWorkspaces(response.data.data);
+                } else {
+                    console.error('Data is not an array:', response.data.data);
+                    setMessage({ text: 'Ошибка: Данные не являются массивом', type: 'error' });
+                    setAvailableWorkspaces([]);
+                }
+            } catch (error) {
+                console.error('Error fetching workspaces:', error);
+                setMessage({ text: 'Ошибка получения рабочих пространств', type: 'error' });
+                setAvailableWorkspaces([]);
+            }
+        };
+
+        fetchWorkspaces();
+    }, []);
+
+    useEffect(() => {
         if (workspaceId && date) {
             fetchOccupiedIntervals();
         }
@@ -81,7 +103,8 @@ const BookingForm = () => {
     const fetchOccupiedIntervals = async () => {
         try {
             const formattedDate = format(date, 'yyyy-MM-dd');
-            const response = await axios.get(`/bookings/occupied?workspaceId=${workspaceId}&date=${formattedDate}`);
+            const apiUrl = `/api/bookings/occupied?workspaceId=${workspaceId}&date=${formattedDate}`;
+            const response = await axios.get(apiUrl);
             console.log("Response from backend:", response.data);
             setOccupiedIntervals(response.data);
         } catch (error) {
@@ -103,27 +126,28 @@ const BookingForm = () => {
         e.preventDefault();
 
         try {
-            const startDateTime = new Date(date);
-            const [hours, minutes] = startTime.split(':');
-            startDateTime.setHours(hours);
-            startDateTime.setMinutes(minutes);
-
-            const endDateTime = new Date(date);
-            const [endHours, endMinutes] = endTime.split(':');
-            endDateTime.setHours(endHours);
-            endDateTime.setMinutes(endMinutes);
+            const startDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${startTime}`);
+            const endDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${endTime}`);
 
             const bookingData = {
-                userId: 1,
+                userEmail: email,
                 workspaceId: workspaceId,
                 startTime: format(startDateTime, 'yyyy-MM-dd\'T\'HH:mm:ss'),
                 endTime: format(endDateTime, 'yyyy-MM-dd\'T\'HH:mm:ss'),
             };
 
-            const response = await axios.post('/bookings/create', bookingData);
-            setMessage({ text: 'Бронирование создано', type: 'success' });
+            const apiUrl = `/api/bookings/create`;
+            const response = await axios.post(apiUrl, bookingData);
+
+            if (response.status === 200 || response.status === 201) {
+                setMessage({ text: 'Бронирование успешно создано', type: 'success' });
+                fetchOccupiedIntervals();
+            } else {
+                setMessage({ text: 'Не удалось создать бронирование', type: 'error' });
+            }
         } catch (error) {
-            setMessage({ text: error.response?.data?.error || 'Ошибка в создании бронирования', type: 'error' });
+            console.error('Error creating booking:', error);
+            setMessage({ text: error.response?.data?.error || 'Ошибка при создании бронирования', type: 'error' });
         }
     };
 
@@ -136,16 +160,18 @@ const BookingForm = () => {
             )}
             <FormLabel>
                 Дата:
-                <FormInput type="date" value={format(date, 'yyyy-MM-dd')} onChange={(e) => setDate(new Date(e.target.value))}  />
+                <FormInput type="date" value={format(date, 'yyyy-MM-dd')} onChange={(e) => setDate(new Date(e.target.value))} />
             </FormLabel>
             <FormLabel>
                 Рабочее пространство:
-                <FormSelect value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)} disabled={!date}>
-                    <option value="">Выберите рабочее пространство</option>
-                    {availableWorkspaces.map(workspace => (
-                        <option key={workspace.id} value={workspace.id}>{workspace.name}</option>
-                    ))}
-                </FormSelect>
+                {availableWorkspaces && (
+                    <FormSelect value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)} disabled={!date}>
+                        <option value="">Выберите рабочее пространство</option>
+                        {availableWorkspaces.map(workspace => (
+                            <option key={workspace.id} value={workspace.id}>{workspace.id}</option>
+                        ))}
+                    </FormSelect>
+                )}
             </FormLabel>
             {occupiedIntervals.length > 0 && (
                 <div>
@@ -171,7 +197,7 @@ const BookingForm = () => {
                 Email:
                 <FormInput type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
             </FormLabel>
-            <SubmitButton type="submit" disabled={!startTime || !endTime}>Создать бронирование</SubmitButton>
+            <SubmitButton type="submit" disabled={!startTime || !endTime || !email}>Создать бронирование</SubmitButton>
         </form>
     );
 };
