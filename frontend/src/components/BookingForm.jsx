@@ -79,12 +79,14 @@ const BookingForm = () => {
                 const response = await axios.get(apiUrl);
                 if (Array.isArray(response.data.data)) {
                     setAvailableWorkspaces(response.data.data);
-                } else {
+                } 
+                else {
                     console.error('Data is not an array:', response.data.data);
                     setMessage({ text: 'Ошибка: Данные не являются массивом', type: 'error' });
                     setAvailableWorkspaces([]);
                 }
-            } catch (error) {
+            } 
+            catch (error) {
                 console.error('Error fetching workspaces:', error);
                 setMessage({ text: 'Ошибка получения рабочих пространств', type: 'error' });
                 setAvailableWorkspaces([]);
@@ -107,7 +109,8 @@ const BookingForm = () => {
             const response = await axios.get(apiUrl);
             console.log("Response from backend:", response.data);
             setOccupiedIntervals(response.data);
-        } catch (error) {
+        } 
+        catch (error) {
             console.error('Error fetching occupied intervals:', error);
             setMessage({ text: 'Ошибка получения занятых интервалов', type: 'error' });
         }
@@ -142,10 +145,12 @@ const BookingForm = () => {
             if (response.status === 200 || response.status === 201) {
                 setMessage({ text: 'Бронирование успешно создано', type: 'success' });
                 fetchOccupiedIntervals();
-            } else {
+            } 
+            else {
                 setMessage({ text: 'Не удалось создать бронирование', type: 'error' });
             }
-        } catch (error) {
+        } 
+        catch (error) {
             console.error('Error creating booking:', error);
             setMessage({ text: error.response?.data?.error || 'Ошибка при создании бронирования', type: 'error' });
         }

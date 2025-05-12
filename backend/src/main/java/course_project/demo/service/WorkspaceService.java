@@ -1,5 +1,7 @@
 package course_project.demo.service;
 
+import java.util.List;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
@@ -31,7 +33,7 @@ public class WorkspaceService {
         return workspaceRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Workspace not found"));
     }
 	
-	public Iterable<Workspace> getAllWorkspaces() {
+	public List<Workspace> getAllWorkspaces() {
 		return workspaceRepository.findAll();
 	}
 

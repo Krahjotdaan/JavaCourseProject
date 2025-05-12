@@ -11,6 +11,9 @@ import course_project.demo.service.WorkspaceService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+
+import java.util.List;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,20 @@ public class WorkspaceController {
         } 
         catch (Exception e) {
             logger.error("An unexpected error occurred while getting workspace with id: {}", id, e);
+            throw e;
+        }
+    }
+
+
+    @Operation(summary = "Получение всех рабочих пространств")
+    @Transactional
+    @GetMapping
+    public ResponseEntity<TemplatesAPI<List<Workspace>>> getAllWorkspaces() {
+        try {
+            List<Workspace> workspaces = workspaceService.getAllWorkspaces();
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "Workspaces found", workspaces));
+        } catch (Exception e) {
+            logger.error("An unexpected error occurred while getting all workspaces: {}", e.getMessage(), e);
             throw e;
         }
     }

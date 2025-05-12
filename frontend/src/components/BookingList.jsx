@@ -9,6 +9,14 @@ const BookingListContainer = styled.div`
   margin-top: 20px;
 `;
 
+const BookingItem = styled.li`
+  padding: 5px 10px;
+  border-radius: 4px;
+  background-color: ${({ theme }) => theme.occupiedIntervalBackground};
+  color: ${({ theme }) => theme.text};
+  margin-bottom: 5px;
+`;
+
 const SearchContainer = styled.div`
   display: flex;
   align-items: center;
@@ -40,9 +48,10 @@ const BookingList = () => {
 
     const handleSearch = async () => {
         try {
-            const response = await axios.get(`/bookings/byEmail?email=${email}`);
+            const response = await axios.get(`/api/bookings/byEmail?email=${email}`);
             setBookings(response.data);
-        } catch (error) {
+        } 
+        catch (error) {
             console.error('Error fetching bookings:', error);
         }
     };
@@ -62,9 +71,9 @@ const BookingList = () => {
             <ul>
                 {bookings.map((booking) => (
                     !isPast(new Date(booking.endTime)) && (
-                        <li key={booking.id}>
+                        <BookingItem key={booking.id}>
                             {booking.workspaceId} - {format(new Date(booking.startTime), 'dd.MM.yyyy HH:mm')} - {format(new Date(booking.endTime), 'HH:mm')}
-                        </li>
+                        </BookingItem>
                     )
                 ))}
             </ul>
