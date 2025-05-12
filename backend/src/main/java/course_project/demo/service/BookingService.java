@@ -4,7 +4,6 @@ import course_project.demo.model.Booking;
 import course_project.demo.repository.*;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -33,7 +32,6 @@ public class BookingService {
                 workspaceId, startOfDay, endOfDay);
     }
 
-    @Transactional
     public Booking createBooking(Booking booking) {
         
         if (!userRepository.existsByEmail(booking.getUserEmail())) {
@@ -62,12 +60,10 @@ public class BookingService {
         return bookingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
     }
 
-    @Transactional
     public List<Booking> getBookingsByEmail(String email) {
         return bookingRepository.findByUserEmail(email);
     }
 
-    @Transactional
     public void deleteBooking(Integer id) {
         bookingRepository.deleteById(id);
     }

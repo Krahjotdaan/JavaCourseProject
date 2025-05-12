@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { format } from 'date-fns';
+import { format, isBefore, parse } from 'date-fns';
 import styled from 'styled-components';
 
 const FormLabel = styled.label`
@@ -79,16 +79,14 @@ const BookingForm = () => {
                 const response = await axios.get(apiUrl);
                 if (Array.isArray(response.data.data)) {
                     setAvailableWorkspaces(response.data.data);
-                } 
-                else {
+                } else {
                     console.error('Data is not an array:', response.data.data);
-                    setMessage({ text: 'Ошибка: Данные не являются массивом', type: 'error' });
+                    setMessage({ text: 'Ошибка: Данные о рабочих пространствах не являются массивом', type: 'error' });
                     setAvailableWorkspaces([]);
                 }
-            } 
-            catch (error) {
+            } catch (error) {
                 console.error('Error fetching workspaces:', error);
-                setMessage({ text: 'Ошибка получения рабочих пространств', type: 'error' });
+                setMessage({ text: `Ошибка при получении рабочих пространств: ${error.message}`, type: 'error' });
                 setAvailableWorkspaces([]);
             }
         };
@@ -112,7 +110,7 @@ const BookingForm = () => {
         } 
         catch (error) {
             console.error('Error fetching occupied intervals:', error);
-            setMessage({ text: 'Ошибка получения занятых интервалов', type: 'error' });
+            setMessage({ text: `Ошибка при получении занятых интервалов: ${error.message}`, type: 'error' });
         }
     };
 
@@ -131,12 +129,20 @@ const BookingForm = () => {
         try {
             const startDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${startTime}`);
             const endDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${endTime}`);
+          
+            if (isBefore(startDateTime, new Date())) {
+                setMessage({ text: 'Ошибка: Начало бронирования не может быть в прошлом', type: 'error' });
+                return;
+            }
+
+            const formattedStartTime = format(startDateTime, "yyyy-MM-dd'T'HH:mm:ss");
+            const formattedEndTime = format(endDateTime, "yyyy-MM-dd'T'HH:mm:ss");
 
             const bookingData = {
                 userEmail: email,
                 workspaceId: workspaceId,
-                startTime: format(startDateTime, 'yyyy-MM-dd\'T\'HH:mm:ss'),
-                endTime: format(endDateTime, 'yyyy-MM-dd\'T\'HH:mm:ss'),
+                startTime: formattedStartTime,
+                endTime: formattedEndTime,
             };
 
             const apiUrl = `/api/bookings/create`;
@@ -147,12 +153,22 @@ const BookingForm = () => {
                 fetchOccupiedIntervals();
             } 
             else {
-                setMessage({ text: 'Не удалось создать бронирование', type: 'error' });
+                setMessage({ text: `Не удалось создать бронирование. Код ошибки: ${response.status}`, type: 'error' });
             }
         } 
         catch (error) {
             console.error('Error creating booking:', error);
-            setMessage({ text: error.response?.data?.error || 'Ошибка при создании бронирования', type: 'error' });
+            let errorMessage = 'Ошибка при создании бронирования.';
+            if (error.response) {
+                errorMessage = `Ошибка при создании бронирования: ${error.response.data?.message || error.response.statusText}`;
+            } 
+            else if (error.request) {
+                errorMessage = 'Не удалось связаться с сервером.';
+            } 
+            else {
+                errorMessage = `Ошибка при создании бронирования: ${error.message}`;
+            }
+            setMessage({ text: errorMessage, type: 'error' });
         }
     };
 

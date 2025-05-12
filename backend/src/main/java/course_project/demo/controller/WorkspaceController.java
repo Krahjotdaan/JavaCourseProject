@@ -54,7 +54,8 @@ public class WorkspaceController {
         try {
             List<Workspace> workspaces = workspaceService.getAllWorkspaces();
             return ResponseEntity.ok(new TemplatesAPI<>(200, "Workspaces found", workspaces));
-        } catch (Exception e) {
+        } 
+        catch (Exception e) {
             logger.error("An unexpected error occurred while getting all workspaces: {}", e.getMessage(), e);
             throw e;
         }

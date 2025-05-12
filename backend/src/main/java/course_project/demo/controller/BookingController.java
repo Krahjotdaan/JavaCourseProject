@@ -2,6 +2,7 @@ package course_project.demo.controller;
 
 import course_project.demo.model.Booking;
 import course_project.demo.model.TemplatesAPI;
+import course_project.demo.model.Views;
 import course_project.demo.service.BookingService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+
+import com.fasterxml.jackson.annotation.JsonView;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -62,6 +65,7 @@ public class BookingController {
 
     @Operation(summary = "Получение бронирования по email")
     @Transactional
+    @JsonView(Views.Internal.class)
     @GetMapping("/byEmail")
     public ResponseEntity<List<Booking>> getBookingsByEmail(@RequestParam String email) {
         try {
@@ -70,6 +74,20 @@ public class BookingController {
         }
         catch (Exception e) {
             logger.error("An unexpected error occurred while getting bookings for user with email: ", email, e);
+            throw e;
+        }
+    }
+
+    @Operation(summary = "Удаление бронирования")
+    @Transactional
+    @DeleteMapping("/{id}")
+    public ResponseEntity<TemplatesAPI<String>> deleteBooking(@PathVariable Integer id) {
+        try {
+            bookingService.deleteBooking(id);
+            return ResponseEntity.ok(new TemplatesAPI<>(200, "Booking deleted", "OK"));
+        } 
+        catch (Exception e) {
+            logger.error("An unexpected error occurred while deleting booking with id: {}", id, e);
             throw e;
         }
     }
