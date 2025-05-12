@@ -3,10 +3,14 @@ package course_project.demo.service;
 import course_project.demo.model.Booking;
 import course_project.demo.repository.*;
 import jakarta.persistence.EntityNotFoundException;
-
-import java.util.List;
-
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.List;
 
 @Service
 public class BookingService {
@@ -21,39 +25,50 @@ public class BookingService {
         this.userRepository = userRepository;
     }
 
-    public Booking addBooking(Booking booking) {
+     public List<Booking> getOccupiedIntervals(String workspaceId, LocalDate date) {
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
 
-        if (userRepository.existsById(booking.getUserId())) {
-            if (workspaceRepository.existsById(booking.getWorkspaceId())) {
-                return bookingRepository.save(booking);
-            }
-            else {
-                throw new EntityNotFoundException("Workspace not found");
-            }
-        }
-        else {
+        return bookingRepository.findByWorkspaceIdAndStartTimeBetween(
+                workspaceId, startOfDay, endOfDay);
+    }
+
+    @Transactional
+    public Booking createBooking(Booking booking) {
+        
+        if (!userRepository.existsByEmail(booking.getUserEmail())) {
             throw new EntityNotFoundException("User not found");
         }
+        if (!workspaceRepository.existsById(booking.getWorkspaceId())) {
+            throw new EntityNotFoundException("Workspace not found");
+        }
+
+        Duration duration = Duration.between(booking.getStartTime(), booking.getEndTime());
+        if (duration.toMinutes() > 90) {
+            throw new IllegalArgumentException("Booking cannot exceed 1.5 hours");
+        }
+
+        List<Booking> existingBookings = bookingRepository.findByWorkspaceIdAndStartTimeLessThanAndEndTimeGreaterThan(
+                booking.getWorkspaceId(), booking.getEndTime(), booking.getStartTime());
+
+        if (!existingBookings.isEmpty()) {
+            throw new IllegalArgumentException("Booking overlaps with an existing booking");
+        }
+
+        return bookingRepository.save(booking);
     }
 
     public Booking getBooking(Integer id) {
         return bookingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
     }
 
-    public List<Booking> getBookingsByUserId(Integer userId) {
-		if (!userRepository.existsById(userId)) {
-            throw new EntityNotFoundException("User not found");
-        }
-        
-        return bookingRepository.findByUserId(userId);
+    @Transactional
+    public List<Booking> getBookingsByEmail(String email) {
+        return bookingRepository.findByUserEmail(email);
     }
 
+    @Transactional
     public void deleteBooking(Integer id) {
-        if (bookingRepository.existsById(id)) {
-            bookingRepository.deleteById(id);
-		}
-		else {
-			throw new EntityNotFoundException("Booking not found");
-		}
+        bookingRepository.deleteById(id);
     }
 }

@@ -10,8 +10,10 @@ FROM openjdk:25-slim
 
 WORKDIR /app
 
+RUN apt-get update && apt-get install -y curl
+
 COPY --from=build /app/build/libs/demo-BOOKING_APP.jar BOOKING_APP.jar
 
-EXPOSE 80:8080
+EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "BOOKING_APP.jar"] 
+ENTRYPOINT ["java", "-jar", "BOOKING_APP.jar"]

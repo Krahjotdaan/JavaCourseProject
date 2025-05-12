@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,14 +31,22 @@ public class User {
     @Size(min = 2, max = 50, message = "Name must be between 2 and 50 characters")
     private String name;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     @JsonProperty("role")
-    @NotBlank(message = "Role cannot be blank")
-    private String role;
+    @NotNull(message = "Role cannot be null")
+    private Role role;
 
     @Column(nullable = false, unique = true)
     @JsonProperty("email")
     @NotBlank(message = "Email cannot be blank")
     @Email(message = "Invalid email format")
     private String email;
+
+    public enum Role {
+        STUDENT,
+        TEACHER,
+        ADMIN,
+        SERVICE
+    }
 }

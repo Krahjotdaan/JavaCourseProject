@@ -21,7 +21,8 @@ public class WorkspaceService {
     public Workspace addWorkspace(Workspace workspace) {
         try {
             return workspaceRepository.save(workspace);
-        } catch (DataIntegrityViolationException e) {
+        } 
+        catch (DataIntegrityViolationException e) {
             throw new DuplicateKeyException("Workspace with this id already exists");
         }  
     }
@@ -42,11 +43,11 @@ public class WorkspaceService {
     }
 
     public void deleteWorkspace(String id) {
-		if (workspaceRepository.existsById(id)) {
+        try {
             workspaceRepository.deleteById(id);
-		}
-		else {
-			throw new EntityNotFoundException("Workspace not found");
-		}
+        }
+        catch (Exception e) {
+            throw new EntityNotFoundException("Workspace not found");
+        }
     }
 }

@@ -1,6 +1,6 @@
 {
-    "Servers": [
-      {
+    "Servers": {
+      "postgres": {
         "Name": "PostgreSQL Server",
         "Group": "Servers",
         "Host": "postgres",
@@ -10,5 +10,5 @@
         "SSLMode": "disable",
         "MaintenanceDB": "mydatabase"
       }
-    ]
+    }
   }

@@ -1,35 +1,78 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState, useEffect } from 'react';
+import BookingForm from './components/BookingForm';
+import BookingList from './components/BookingList';
+import styled, { ThemeProvider } from 'styled-components';
+import { darkTheme, lightTheme, GlobalStyles } from './themes';
 
-function App() {
-  const [count, setCount] = useState(0)
+const AppContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: left;
+  min-height: 100vh;
+  width: 100%; 
+  height: 100%;
+  margin-left: 5%;
+  background-color: ${({ theme }) => theme.body};
+  color: ${({ theme }) => theme.text};
+`;
 
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
-}
+const Header = styled.header`
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 600px; 
+  margin-bottom: 5px;
+`;
 
-export default App
+const Title = styled.h1`
+  text-align: left;
+`;
+
+const BookingFormContainer = styled.div`
+  border: 1px solid ${({ theme }) => theme.borderColor};
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  width: 100%;
+  max-width: 600px;
+  display: flex;
+  flex-direction: column;
+`;
+
+const App = () => {
+    const [theme, setTheme] = useState('light');
+
+    const toggleTheme = () => {
+        setTheme((prevTheme) => (prevTheme === 'light' ? 'dark' : 'light'));
+    };
+
+    useEffect(() => {
+        const storedTheme = localStorage.getItem('theme');
+        if (storedTheme) {
+            setTheme(storedTheme);
+        }
+    }, []);
+
+    useEffect(() => {
+        localStorage.setItem('theme', theme);
+    }, [theme]);
+
+    const currentTheme = theme === 'light' ? lightTheme : darkTheme;
+
+    return (
+        <ThemeProvider theme={currentTheme}>
+            <GlobalStyles />
+            <AppContainer>
+                <Header>
+                    <Title>Бронирование мест</Title>
+                </Header>
+                <BookingFormContainer>
+                    <BookingForm />
+                </BookingFormContainer>
+                <BookingList />
+            </AppContainer>
+        </ThemeProvider>
+    );
+};
+
+export default App;
