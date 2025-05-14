@@ -1,4 +1,4 @@
-import { createGlobalStyle } from 'styled-components';
+import styled, {createGlobalStyle} from 'styled-components';
 
 export const lightTheme = {
     body: '#fff',
@@ -31,6 +31,15 @@ export const darkTheme = {
     occupiedSlotBackground: '#757575', 
     occupiedIntervalBackground: '#616161'
 };
+
+export const Message = styled.div`
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  text-align: center;
+  color: ${({ theme, type }) => (type === 'success' ? theme.successText : theme.errorText)};
+  background-color: ${({ theme, type }) => (type === 'success' ? theme.successBackground : theme.errorBackground)};
+`;
 
 export const GlobalStyles = createGlobalStyle`
   body {
