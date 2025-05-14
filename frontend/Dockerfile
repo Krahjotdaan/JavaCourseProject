@@ -1,12 +1,14 @@
 FROM node:23-alpine AS builder
 
-WORKDIR /app
+WORKDIR /frontend
 
 COPY package*.json ./
 
 RUN npm install
 
 COPY . .
+
+RUN npm test
 
 RUN npm run build
 
