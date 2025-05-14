@@ -1,43 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import BookingForm from './components/BookingForm';
 import BookingList from './components/BookingList';
-import styled, { ThemeProvider } from 'styled-components';
-import { lightTheme, GlobalStyles } from './themes';
+import { ThemeProvider } from 'styled-components';
+import { 
+    AppContainer,
+    Header,
+    Title,
+ } from './styles/App.styled';
+import { lightTheme, GlobalStyles } from './styles/themes';
+import { BookingFormContainer } from './styles/BookingForm.styled';
+import { BookingListContainer } from './styles/BookingList.styled';
 
-const AppContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: left;
-  min-height: 100vh;
-  width: 100%; 
-  height: 100%;
-  margin-left: 5%;
-  background-color: ${({ theme }) => theme.body};
-  color: ${({ theme }) => theme.text};
-`;
 
-const Header = styled.header`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  max-width: 600px; 
-  margin-bottom: 5px;
-`;
-
-const Title = styled.h1`
-  text-align: left;
-`;
-
-const BookingFormContainer = styled.div`
-  border: 1px solid ${({ theme }) => theme.borderColor};
-  border-radius: 8px;
-  padding: 20px;
-  margin-bottom: 20px;
-  width: 100%;
-  max-width: 600px;
-  display: flex;
-  flex-direction: column;
-`;
 
 const App = () => {
     const [theme, setTheme] = useState('light');
@@ -65,7 +39,9 @@ const App = () => {
                 <BookingFormContainer>
                     <BookingForm />
                 </BookingFormContainer>
-                <BookingList />
+                <BookingListContainer>
+                    <BookingList />
+                </BookingListContainer>
             </AppContainer>
         </ThemeProvider>
     );
