@@ -1,0 +1,100 @@
+stages:
+  - build
+  - test
+  - deploy
+
+variables:
+  POSTGRES_DB: mydatabase
+  POSTGRES_USER: myuser
+  POSTGRES_PASSWORD: mypassword
+  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
+  SPRING_DATASOURCE_USERNAME: myuser
+  SPRING_DATASOURCE_PASSWORD: mypassword
+
+services:
+  - postgres:14
+
+build_backend:
+  stage: build
+  image: gradle:8.13-jdk17
+  script:
+    - cd backend
+    - ./gradlew build -x test
+  artifacts:
+    paths:
+      - backend/build/libs/*.jar
+
+build_frontend:
+  stage: build
+  image: node:23-alpine
+  script:
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist/
+
+unit_tests_backend:
+  stage: test
+  image: gradle:8.13-jdk17
+  script:
+    - cd backend
+    - ./gradlew test
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/**/*.xml
+
+unit_tests_frontend:
+  stage: test
+  image: node:23-alpine
+  script:
+    - cd frontend
+    - npm install
+    - npm test
+  artifacts:
+    when: always
+    reports:
+      junit: frontend/junit.xml
+
+integration_tests_backend:
+  stage: test
+  image: gradle:8.13-jdk17
+  services:
+    - postgres:14
+  script:
+    - cd backend
+    - ./gradlew bootRun &
+    - sleep 30
+    - ./gradlew test --tests "course_project.integration.*"
+  artifacts:
+    when: always
+    reports:
+      junit: backend/build/test-results/**/*.xml
+
+integration_tests_frontend:
+  stage: test
+  image: node:23-alpine
+  services:
+    - postgres:14
+  script:
+    - cd backend
+    - ./gradlew bootRun &
+    - cd ../frontend
+    - npm install
+    - npm run test:integration
+  artifacts:
+    when: always
+    reports:
+      junit: frontend/junit.xml
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  services:
+    - docker:dind
+  script:
+    - docker-compose up -d
+  only:
+    - main
