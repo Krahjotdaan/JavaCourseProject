@@ -1,1 +1,1 @@
-require('path').resolve(process.cwd(), 'node_modules', '@testing-library/jest-dom', 'extend-expect');
+import '@testing-library/jest-dom';
