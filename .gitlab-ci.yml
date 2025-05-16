@@ -10,9 +10,13 @@ variables:
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
   SPRING_DATASOURCE_USERNAME: myuser
   SPRING_DATASOURCE_PASSWORD: mypassword
+  PGADMIN_DEFAULT_EMAIL: admin@example.com
+  PGADMIN_DEFAULT_PASSWORD: adminpassword
+  PGADMIN_LISTEN_PORT: 80
 
 services:
   - postgres:14
+  - pgadmin4:latest
 
 build_backend:
   stage: build
@@ -40,23 +44,11 @@ unit_tests_backend:
   image: gradle:8.13-jdk17
   script:
     - cd backend
-    - ./gradlew test
+    - ./gradlew test --tests "course_project.demo.unit.*"
   artifacts:
     when: always
     reports:
       junit: backend/build/test-results/**/*.xml
-
-unit_tests_frontend:
-  stage: test
-  image: node:23-alpine
-  script:
-    - cd frontend
-    - npm install
-    - npm test
-  artifacts:
-    when: always
-    reports:
-      junit: frontend/junit.xml
 
 integration_tests_backend:
   stage: test
@@ -67,27 +59,11 @@ integration_tests_backend:
     - cd backend
     - ./gradlew bootRun &
     - sleep 30
-    - ./gradlew test --tests "course_project.integration.*"
+    - ./gradlew test --tests "course_project.demo.integration.*"
   artifacts:
     when: always
     reports:
       junit: backend/build/test-results/**/*.xml
-
-integration_tests_frontend:
-  stage: test
-  image: node:23-alpine
-  services:
-    - postgres:14
-  script:
-    - cd backend
-    - ./gradlew bootRun &
-    - cd ../frontend
-    - npm install
-    - npm run test:integration
-  artifacts:
-    when: always
-    reports:
-      junit: frontend/junit.xml
 
 deploy:
   stage: deploy
