@@ -41,5 +41,13 @@ dependencies {
 }
 
 tasks.withType<Test> {
-	useJUnitPlatform()
+    useJUnitPlatform()
+
+    testLogging {
+        events "passed", "skipped", "failed" 
+        showStandardStreams = true
+        reports.html.enabled = true
+        reports.junitXml.enabled = true 
+    }
 }
+
