@@ -10,14 +10,10 @@ variables:
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
   SPRING_DATASOURCE_USERNAME: myuser
   SPRING_DATASOURCE_PASSWORD: mypassword
-  PGADMIN_DEFAULT_EMAIL: admin@example.com
-  PGADMIN_DEFAULT_PASSWORD: adminpassword
-  PGADMIN_LISTEN_PORT: 80
 
 services:
   - postgres:14
-  - pgadmin4:latest
-
+   
 build_backend:
   stage: build
   image: gradle:8.13-jdk17
@@ -27,6 +23,8 @@ build_backend:
   artifacts:
     paths:
       - backend/build/libs/*.jar
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 build_frontend:
   stage: build
@@ -38,6 +36,8 @@ build_frontend:
   artifacts:
     paths:
       - frontend/dist/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 unit_tests_backend:
   stage: test
@@ -49,6 +49,8 @@ unit_tests_backend:
     when: always
     reports:
       junit: backend/build/test-results/**/*.xml
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 integration_tests_backend:
   stage: test
@@ -64,6 +66,8 @@ integration_tests_backend:
     when: always
     reports:
       junit: backend/build/test-results/**/*.xml
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 deploy:
   stage: deploy
@@ -71,6 +75,6 @@ deploy:
   services:
     - docker:dind
   script:
-    - docker-compose up -d
-  only:
-    - main
+    - docker-compose up -d --build
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
