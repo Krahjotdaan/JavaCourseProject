@@ -1,5 +1,4 @@
 stages:
-  - build
   - test
   - deploy
 
@@ -17,36 +16,6 @@ services:
   - postgres:14
   - docker:dind
    
-build_backend:
-  stage: build
-  image: gradle:8.13-jdk17
-  tags:
-    - students-buildkit-medium
-  script:
-    - cd backend
-    - chmod u+x ./gradlew
-    - ./gradlew build -x test
-  artifacts:
-    paths:
-      - backend/build/libs/*.jar
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-
-build_frontend:
-  stage: build
-  image: node:23-alpine
-  tags:
-    - students-buildkit-medium
-  script:
-    - cd frontend
-    - npm install
-    - npm run build
-  artifacts:
-    paths:
-      - frontend/dist/
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-
 unit_tests_backend:
   stage: test
   image: gradle:8.13-jdk17
