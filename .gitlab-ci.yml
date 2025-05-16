@@ -51,6 +51,7 @@ unit_tests_backend:
   image: gradle:8.13-jdk17
   script:
     - cd backend
+    - sudo chmod u+x ./gradlew
     - ./gradlew test --tests "course_project.demo.unit.*"
   artifacts:
     when: always
