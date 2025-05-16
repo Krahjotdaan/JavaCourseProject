@@ -59,7 +59,7 @@ unit_tests_backend:
   artifacts:
     when: always
     reports:
-      junit: backend/build/test-results/**/*.xml
+      junit: backend/build/test-results/test/**/*.xml  # <--- Corrected Path (Assumed Default)
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
@@ -79,7 +79,7 @@ integration_tests_backend:
   artifacts:
     when: always
     reports:
-      junit: backend/build/test-results/**/*.xml
+      junit: backend/build/test-results/test/**/*.xml  # <--- Corrected Path (Assumed Default)
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
