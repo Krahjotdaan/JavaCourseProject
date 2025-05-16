@@ -1,60 +1,51 @@
 stages:
+  - build
   - test
-  - deploy
 
-variables:
-  POSTGRES_DB: mydatabase
-  POSTGRES_USER: myuser
-  POSTGRES_PASSWORD: mypassword
-  SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
-  SPRING_DATASOURCE_USERNAME: myuser
-  SPRING_DATASOURCE_PASSWORD: mypassword
-  SPRING_PROFILES_ACTIVE: test
-  DOCKER_HOST: tcp://docker:2376
-  DOCKER_TLS_CERTDIR: "/certs"
-
-services:
-  - postgres:14
-  - docker:dind
-
-integration_tests_backend:
-  stage: test
+build_backend:
+  stage: build
   image: gradle:8.13-jdk17
-  services:
-    - postgres:14
   tags:
     - students-buildkit-medium
   script:
     - cd backend
     - chmod u+x ./gradlew
-    - ping -c 3 postgres
-    - ./gradlew bootRun 
-    - echo "Checking PostgreSQL availability..."
-    - curl -v --connect-timeout 10 postgres:5432
-    - if [ $? -ne 0 ]; then
-      echo "PostgreSQL is not available. Check connection and service logs."
-      exit 1
-      fi
+    - ./gradlew build -x test
+  artifacts:
+    paths:
+      - backend/build/libs/*.jar
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
-    - sleep 15
-    - echo "Starting Gradle tests..."
-    - ./gradlew test --tests "course_project.demo.integration.*"
+build_frontend:
+  stage: build
+  image: node:23-alpine
+  tags:
+    - students-buildkit-medium
+  script:
+    - cd frontend
+    - npm install
+    - npm run build
+  artifacts:
+    paths:
+      - frontend/dist/
+  rules:
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+   
+unit_tests_backend:
+  stage: test
+  image: gradle:8.13-jdk17
+  tags:
+    - students-buildkit-medium
+  script:
+    - cd backend
+    - chmod u+x ./gradlew
+    - ./gradlew test --tests "course_project.demo.unit.*"
     - find . -name "*.xml"
   artifacts:
     when: always
     reports:
-      junit: backend/build/test-results/test/**/*.xml
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
-
-deploy:
-  stage: deploy
-  image: docker:latest
-  tags:
-    - students-buildkit-medium
-  services:
-    - docker:dind
-  script:
-    - docker-compose up -d --build
+      junit: backend/build/test-results/test/**/*.xml 
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
