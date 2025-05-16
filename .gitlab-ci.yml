@@ -26,6 +26,7 @@ integration_tests_backend:
   script:
     - cd backend
     - chmod u+x ./gradlew
+    - nc -zv postgres 5432
     - ./gradlew bootRun 
     - ./gradlew test --tests "course_project.demo.integration.*"
     - find . -name "*.xml"
