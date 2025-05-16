@@ -56,10 +56,11 @@ unit_tests_backend:
     - cd backend
     - chmod u+x ./gradlew
     - ./gradlew test --tests "course_project.demo.unit.*"
+    - find . -name "*.xml"
   artifacts:
     when: always
     reports:
-      junit: backend/build/test-results/test/**/*.xml  # <--- Corrected Path (Assumed Default)
+      junit: backend/build/test-results/test/**/*.xml 
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
@@ -76,10 +77,11 @@ integration_tests_backend:
     - ./gradlew bootRun &
     - sleep 30
     - ./gradlew test --tests "course_project.demo.integration.*"
+    - find . -name "*.xml"
   artifacts:
     when: always
     reports:
-      junit: backend/build/test-results/test/**/*.xml  # <--- Corrected Path (Assumed Default)
+      junit: backend/build/test-results/test/**/*.xml
   rules:
     - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
