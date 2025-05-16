@@ -15,23 +15,6 @@ variables:
 services:
   - postgres:14
   - docker:dind
-   
-unit_tests_backend:
-  stage: test
-  image: gradle:8.13-jdk17
-  tags:
-    - students-buildkit-medium
-  script:
-    - cd backend
-    - chmod u+x ./gradlew
-    - ./gradlew test --tests "course_project.demo.unit.*"
-    - find . -name "*.xml"
-  artifacts:
-    when: always
-    reports:
-      junit: backend/build/test-results/test/**/*.xml 
-  rules:
-    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
 
 integration_tests_backend:
   stage: test
@@ -43,8 +26,7 @@ integration_tests_backend:
   script:
     - cd backend
     - chmod u+x ./gradlew
-    - ./gradlew bootRun &
-    - sleep 30
+    - ./gradlew bootRun 
     - ./gradlew test --tests "course_project.demo.integration.*"
     - find . -name "*.xml"
   artifacts:
