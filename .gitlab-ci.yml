@@ -66,7 +66,7 @@ integration_tests_backend:
     - postgres:14
   script:
     - cd backend
-    - ./gradlew bootRun &
+    - sudo ./gradlew bootRun &
     - sleep 30
     - ./gradlew test --tests "course_project.demo.integration.*"
   artifacts:
