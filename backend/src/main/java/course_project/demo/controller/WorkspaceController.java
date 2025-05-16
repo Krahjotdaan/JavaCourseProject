@@ -33,7 +33,6 @@ public class WorkspaceController {
     }
 
     @Operation(summary = "Получение информации о рабочем пространстве")
-    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<TemplatesAPI<Workspace>> getWorkspace(@PathVariable String id) {
         try {
@@ -48,7 +47,6 @@ public class WorkspaceController {
 
 
     @Operation(summary = "Получение всех рабочих пространств")
-    @Transactional
     @GetMapping
     public ResponseEntity<TemplatesAPI<List<Workspace>>> getAllWorkspaces() {
         try {
