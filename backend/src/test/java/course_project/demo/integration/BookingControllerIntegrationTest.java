@@ -1,11 +1,11 @@
-package course_project.integration.controller;
+package course_project.demo.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import course_project.demo.model.Booking;
-import course_project.demo.model.User;
 import course_project.demo.model.Workspace;
-import course_project.demo.repository.BookingRepository;
-import course_project.demo.repository.UserRepository;
-import course_project.demo.repository.WorkspaceRepository;
+import course_project.demo.service.BookingService;
+import course_project.demo.service.WorkspaceService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,55 +27,77 @@ public class BookingControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private BookingRepository bookingRepository;
+    private ObjectMapper objectMapper;
 
     @Autowired
-    private UserRepository userRepository;
+    private BookingService bookingService;
 
     @Autowired
-    private WorkspaceRepository workspaceRepository;
+    private WorkspaceService workspaceService;
+
+    private Workspace testWorkspace;
+    private Booking testBooking;
 
     @BeforeEach
     void setUp() {
-        bookingRepository.deleteAll();
-        userRepository.deleteAll();
-        workspaceRepository.deleteAll();
+        testWorkspace = new Workspace();
+        testWorkspace.setId("test-workspace");
+        testWorkspace.setType(Workspace.Type.MEETING_ROOM);
+        workspaceService.addWorkspace(testWorkspace);
+
+        testBooking = new Booking();
+        testBooking.setUserEmail("test@example.com");
+        testBooking.setWorkspaceId(testWorkspace.getId());
+        testBooking.setStartTime(LocalDateTime.now().plusHours(1));
+        testBooking.setEndTime(LocalDateTime.now().plusHours(2));
+
+    }
+
+    @AfterEach
+    void tearDown() {
+        bookingService.deleteBooking(testBooking.getId());
+        workspaceService.deleteWorkspace(testWorkspace.getId());
     }
 
     @Test
-    void testCreateBooking() throws Exception {
-        String userEmail = "test@example.com";
-        String workspaceId = "workspace1";
+    void testGetOccupiedIntervals_Success() throws Exception {
+        bookingService.createBooking(testBooking);
 
-        userRepository.save(new User(null, "Test User", Role.STUDENT, userEmail));
-        workspaceRepository.save(new Workspace(workspaceId, Type.MEETING_ROOM));
+        mockMvc.perform(get("/bookings/occupied")
+                        .param("workspaceId", testBooking.getWorkspaceId())
+                        .param("date", testBooking.getStartTime().toLocalDate().toString()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$[0].workspaceId").value(testBooking.getWorkspaceId()));
+    }
 
-        String bookingJson = String.format(
-                "{\"userEmail\":\"%s\",\"workspaceId\":\"%s\",\"startTime\":\"%s\",\"endTime\":\"%s\"}",
-                userEmail, workspaceId, LocalDateTime.now().plusHours(1).toString(), LocalDateTime.now().plusHours(2).toString()
-        );
+    @Test
+    void testCreateBooking_Success() throws Exception {
+        String bookingJson = objectMapper.writeValueAsString(testBooking);
 
-        mockMvc.perform(post("/api/bookings/create")
+        mockMvc.perform(post("/bookings/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(bookingJson))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.userEmail").value(testBooking.getUserEmail()))
+                .andExpect(jsonPath("$.data.workspaceId").value(testBooking.getWorkspaceId()));
     }
 
     @Test
-    void testGetBookingsByEmail() throws Exception {
-        String userEmail = "test@example.com";
-        String workspaceId = "workspace1";
+    void testGetBookingsByEmail_Success() throws Exception {
+        bookingService.createBooking(testBooking);
 
-        userRepository.save(new User(null, "Test User", Role.STUDENT, userEmail));
-        workspaceRepository.save(new Workspace(workspaceId, Type.MEETING_ROOM));
-
-        Booking booking = new Booking(null, userEmail, workspaceId, LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2));
-        bookingRepository.save(booking);
-
-        mockMvc.perform(get("/api/bookings/byEmail")
-                        .param("email", userEmail))
+        mockMvc.perform(get("/bookings/byEmail")
+                        .param("email", testBooking.getUserEmail()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").exists());
+                .andExpect(jsonPath("$[0].userEmail").value(testBooking.getUserEmail()));
+    }
+
+    @Test
+    void testDeleteBooking_Success() throws Exception {
+        Booking savedBooking = bookingService.createBooking(testBooking);
+
+        mockMvc.perform(delete("/bookings/{id}", savedBooking.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.message").value("Booking deleted"));
     }
 }

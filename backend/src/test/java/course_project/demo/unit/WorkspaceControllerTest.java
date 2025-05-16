@@ -1,4 +1,4 @@
-package course_project.demo.controllers;
+package course_project.demo.unit;
 
 import course_project.demo.controller.WorkspaceController;
 import course_project.demo.model.TemplatesAPI;

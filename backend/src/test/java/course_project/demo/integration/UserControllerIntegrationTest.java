@@ -1,7 +1,9 @@
-package course_project.integration.controller;
+package course_project.demo.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import course_project.demo.model.User;
-import course_project.demo.repository.UserRepository;
+import course_project.demo.service.UserService;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,31 +23,55 @@ public class UserControllerIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private UserRepository userRepository;
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private UserService userService;
+
+    private User testUser;
 
     @BeforeEach
     void setUp() {
-        userRepository.deleteAll();
+        testUser = new User();
+        testUser.setId(1);
+        testUser.setName("Test User");
+        testUser.setRole(User.Role.STUDENT);
+        testUser.setEmail("testuser@example.com");
+    }
+
+    @AfterEach
+    void tearDown() {
+        userService.deleteUser(testUser.getId());
     }
 
     @Test
-    void testCreateUser() throws Exception {
-        String userJson = "{\"name\":\"Test User\",\"role\":\"STUDENT\",\"email\":\"test@example.com\"}";
+    void testGetUser_Success() throws Exception {
+        User savedUser = userService.addUser(testUser);
 
-        mockMvc.perform(post("/api/users/create")
+        mockMvc.perform(get("/users/{id}", savedUser.getId()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value(testUser.getName()))
+                .andExpect(jsonPath("$.data.email").value(testUser.getEmail()));
+    }
+
+    @Test
+    void testAddUser_Success() throws Exception {
+        String userJson = objectMapper.writeValueAsString(testUser);
+
+        mockMvc.perform(post("/users")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(userJson))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").exists());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data.name").value(testUser.getName()))
+                .andExpect(jsonPath("$.data.email").value(testUser.getEmail()));
     }
 
     @Test
-    void testGetUser() throws Exception {
-        User user = new User(null, "Test User", Role.STUDENT, "test@example.com");
-        userRepository.save(user);
+    void testDeleteUser_Success() throws Exception {
+        User savedUser = userService.addUser(testUser);
 
-        mockMvc.perform(get("/api/users/{id}", user.getId()))
+        mockMvc.perform(delete("/users/{id}", savedUser.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("test@example.com"));
+                .andExpect(jsonPath("$.message").value("User deleted"));
     }
 }
