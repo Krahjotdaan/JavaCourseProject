@@ -44,10 +44,10 @@ tasks.withType<Test> {
     useJUnitPlatform()
 
     testLogging {
-        events "passed", "skipped", "failed" 
+        events("passed", "skipped", "failed")
         showStandardStreams = true
-        reports.html.enabled = true
-        reports.junitXml.enabled = true 
+        reports.html.required.set(true) 
+        reports.junitXml.required.set(true)
     }
 }
 
