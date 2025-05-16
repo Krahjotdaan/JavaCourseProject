@@ -9,6 +9,7 @@ variables:
   SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/mydatabase
   SPRING_DATASOURCE_USERNAME: myuser
   SPRING_DATASOURCE_PASSWORD: mypassword
+  SPRING_PROFILES_ACTIVE: test
   DOCKER_HOST: tcp://docker:2376
   DOCKER_TLS_CERTDIR: "/certs"
 
@@ -28,6 +29,15 @@ integration_tests_backend:
     - chmod u+x ./gradlew
     - ping -c 3 postgres
     - ./gradlew bootRun 
+    - echo "Checking PostgreSQL availability..."
+    - curl -v --connect-timeout 10 postgres:5432
+    - if [ $? -ne 0 ]; then
+      echo "PostgreSQL is not available. Check connection and service logs."
+      exit 1
+      fi
+
+    - sleep 15
+    - echo "Starting Gradle tests..."
     - ./gradlew test --tests "course_project.demo.integration.*"
     - find . -name "*.xml"
   artifacts:
