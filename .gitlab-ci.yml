@@ -20,6 +20,8 @@ services:
 build_backend:
   stage: build
   image: gradle:8.13-jdk17
+  tags:
+    - students-buildkit-medium
   script:
     - cd backend
     - ./gradlew build -x test
@@ -32,6 +34,8 @@ build_backend:
 build_frontend:
   stage: build
   image: node:23-alpine
+  tags:
+    - students-buildkit-medium
   script:
     - cd frontend
     - npm install
