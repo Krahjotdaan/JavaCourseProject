@@ -1,0 +1,59 @@
+package course_project.demo.service;
+
+import course_project.demo.model.Booking;
+import course_project.demo.repository.*;
+import jakarta.persistence.EntityNotFoundException;
+
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class BookingService {
+
+    private final BookingRepository bookingRepository;
+    private final WorkspaceRepository workspaceRepository;
+    private final UserRepository userRepository;
+
+    public BookingService(BookingRepository bookingRepository, WorkspaceRepository workspaceRepository, UserRepository userRepository) {
+        this.bookingRepository = bookingRepository;
+        this.workspaceRepository = workspaceRepository;
+        this.userRepository = userRepository;
+    }
+
+    public Booking addBooking(Booking booking) {
+
+        if (userRepository.existsById(booking.getUserId())) {
+            if (workspaceRepository.existsById(booking.getWorkspaceId())) {
+                return bookingRepository.save(booking);
+            }
+            else {
+                throw new EntityNotFoundException("Workspace not found");
+            }
+        }
+        else {
+            throw new EntityNotFoundException("User not found");
+        }
+    }
+
+    public Booking getBooking(Integer id) {
+        return bookingRepository.findById(id).orElseThrow(() -> new EntityNotFoundException("Booking not found"));
+    }
+
+    public List<Booking> getBookingsByUserId(Integer userId) {
+		if (!userRepository.existsById(userId)) {
+            throw new EntityNotFoundException("User not found");
+        }
+        
+        return bookingRepository.findByUserId(userId);
+    }
+
+    public void deleteBooking(Integer id) {
+        if (bookingRepository.existsById(id)) {
+            bookingRepository.deleteById(id);
+		}
+		else {
+			throw new EntityNotFoundException("Booking not found");
+		}
+    }
+}
