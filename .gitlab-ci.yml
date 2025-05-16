@@ -24,6 +24,7 @@ build_backend:
     - students-buildkit-medium
   script:
     - cd backend
+    - sudo chmod u+x ./gradlew
     - ./gradlew build -x test
   artifacts:
     paths:
