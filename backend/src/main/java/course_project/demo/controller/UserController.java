@@ -29,7 +29,6 @@ public class UserController {
     }
 
     @Operation(summary = "Получение пользователя")
-    @Transactional
     @GetMapping("/{id}")
     public ResponseEntity<TemplatesAPI<User>> getUser(@PathVariable Integer id) {
         try {

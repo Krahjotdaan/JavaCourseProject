@@ -34,7 +34,6 @@ public class BookingController {
     }
 
     @Operation(summary = "Получение занятых интервалов времени рабочего пространства")
-    @Transactional
     @GetMapping("/occupied")
     public ResponseEntity<List<Booking>> getOccupiedIntervals(@RequestParam String workspaceId, 
         @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
@@ -64,7 +63,6 @@ public class BookingController {
     }
 
     @Operation(summary = "Получение бронирования по email")
-    @Transactional
     @JsonView(Views.Internal.class)
     @GetMapping("/byEmail")
     public ResponseEntity<List<Booking>> getBookingsByEmail(@RequestParam String email) {
