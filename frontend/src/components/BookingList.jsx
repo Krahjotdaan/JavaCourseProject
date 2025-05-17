@@ -30,6 +30,10 @@ const BookingList = () => {
         try {
             const response = await axios.get(`/api/bookings/byEmail?email=${email}`);
             setBookings(response.data);
+
+            if (response.data.length == 0) {
+                setMessage({ text: 'Активные бронирования не найдены', type: 'info' });
+            }
         } 
         catch (error) {
             setMessage({ text: 'Ошибка при получении бронирований', type: 'error' });
@@ -40,6 +44,7 @@ const BookingList = () => {
         try {
             await axios.delete(`/api/bookings/${bookingId}`);
             handleSearch();
+            setMessage({ text: 'Бронирование удалено', type: 'success' });
         } 
         catch (error) {
             setMessage({ text: 'Ошибка при удалении бронирований', type: 'error' });

@@ -86,11 +86,25 @@ const BookingForm = () => {
             const startDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${startTime}`);
             const endDateTime = new Date(`${format(date, 'yyyy-MM-dd')}T${endTime}`);
 
+            const startDateTimeMs = startDateTime.getTime();
+            const endDateTimeMs = endDateTime.getTime();
+            
+            // Костыль. Перед созданием ко времени прибавляется 3 часа
+            // Так как postgres переводит время в UTC+0, а при получении бронирований не переводилось обратно в UTC+3
+            const timeZoneOffset = 3 * 60 * 60 * 1000; // 3 часа в миллисекундах
+            const startDateTimeWithOffsetMs = startDateTimeMs + timeZoneOffset;
+            const endDateTimeWithOffsetMs = endDateTimeMs + timeZoneOffset;
+
+            const startDateTimeWithOffset = new Date(startDateTimeWithOffsetMs);
+            const endDateTimeWithOffset = new Date(endDateTimeWithOffsetMs);
+
+            console.log(startDateTimeWithOffset.toISOString());
+
             const bookingData = {
                 userEmail: email,
                 workspaceId: workspaceId,
-                startTime: startDateTime.toISOString(),
-                endTime: endDateTime.toISOString(),
+                startTime: startDateTimeWithOffset.toISOString(),
+                endTime: endDateTimeWithOffset.toISOString(),
             };
 
             const apiUrl = `/api/bookings/create`;
