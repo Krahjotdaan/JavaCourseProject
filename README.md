@@ -55,7 +55,9 @@ PGADMIN_PASSWORD = "..."
 ```
 и заполните его нужными значениями
 
-2. Выполните `docker-compose up -d --build`
+2. Поменяйте поле `Username` в файле `servers.json` на значение, указанное в поле `POSTGRES_USER` в файле `.env`
+
+3. Выполните `docker-compose up -d --build`
 
 
 #### Лицензия
