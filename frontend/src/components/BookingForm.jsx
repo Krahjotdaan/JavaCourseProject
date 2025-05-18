@@ -13,6 +13,13 @@ import { Message } from '../styles/themes';
 import { validateBooking } from '../utils/BookingForm.utils';
 
 const BookingForm = () => {
+    const roomTypes = {
+        "MEETING_ROOM": "Переговорка",
+        "CLASSROOM": "Аудитория",
+        "LECTURE_CLASSROOM": "Лекционный зал",
+        "LIBRARY": "Библиотека",
+        "COWORKING_SPACE": "Коворкинг"
+    }
     const [date, setDate] = useState(new Date());
     const [startTime, setStartTime] = useState('');
     const [endTime, setEndTime] = useState('');
@@ -147,7 +154,7 @@ const BookingForm = () => {
                 <FormSelect id="workspaceId" value={workspaceId} onChange={(e) => setWorkspaceId(e.target.value)} disabled={!date}>
                     <option value="">Выберите рабочее пространство</option>
                     {availableWorkspaces.map(workspace => (
-                        <option key={workspace.id} value={workspace.id}>{workspace.id}</option>
+                        <option key={workspace.id} value={workspace.id}>{`${workspace.id} - ${roomTypes[workspace.type]}`}</option>
                     ))}
                 </FormSelect>
             </FormLabel>
