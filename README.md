@@ -59,7 +59,7 @@ PGADMIN_PASSWORD = "..."
 
 
 #### Лицензия
-[[MIT|LICENSE]]
+[MIT](LICENSE)
 
 
 *\*Использован упрощенный кейс олимпиады PROD`25*
