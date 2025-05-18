@@ -58,4 +58,8 @@ PGADMIN_PASSWORD = "..."
 2. Выполните `docker-compose up -d --build`
 
 
+#### Лицензия
+[[MIT|LICENSE]]
+
+
 *\*Использован упрощенный кейс олимпиады PROD`25*
