@@ -4,11 +4,10 @@
         "Name": "PostgreSQL Server",
         "Group": "Servers",
         "Host": "postgres",
-        "Port": 5432,
         "Username": "myuser",
-        "Password": "mypassword",
+        "Port": 5432,
         "SSLMode": "disable",
-        "MaintenanceDB": "mydatabase"
+        "MaintenanceDB": "postgres"
       }
     }
   }
